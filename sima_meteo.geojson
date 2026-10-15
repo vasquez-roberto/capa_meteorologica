@@ -1,0 +1,341 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.338553,
+          25.6760139
+        ]
+      },
+      "properties": {
+        "Estacion": "CENTRO",
+        "Clave": "CE",
+        "Municipio": "Monterrey",
+        "PM10 (ug/m3)": 35.0,
+        "PM2.5 (ug/m3)": 13.95,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.243653,
+          25.6654972
+        ]
+      },
+      "properties": {
+        "Estacion": "SURESTE",
+        "Clave": "SE",
+        "Municipio": "Guadalupe",
+        "PM10 (ug/m3)": 24.333,
+        "PM2.5 (ug/m3)": 16.163,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.25317,
+          25.74503
+        ]
+      },
+      "properties": {
+        "Estacion": "NORESTE",
+        "Clave": "NE",
+        "Municipio": "San Nicolás",
+        "PM10 (ug/m3)": 20.8,
+        "PM2.5 (ug/m3)": 11.45,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.369578,
+          25.7629306
+        ]
+      },
+      "properties": {
+        "Estacion": "NOROESTE",
+        "Clave": "NO",
+        "Municipio": "Monterrey",
+        "PM10 (ug/m3)": 38.0,
+        "PM2.5 (ug/m3)": 24.0,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.467831,
+          25.6794444
+        ]
+      },
+      "properties": {
+        "Estacion": "SUROESTE",
+        "Clave": "SO",
+        "Municipio": "Santa Catarina",
+        "PM10 (ug/m3)": 41.5,
+        "PM2.5 (ug/m3)": 13.01,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.585011,
+          25.8004639
+        ]
+      },
+      "properties": {
+        "Estacion": "NOROESTE 2",
+        "Clave": "NO2",
+        "Municipio": "García",
+        "PM10 (ug/m3)": 45.0,
+        "PM2.5 (ug/m3)": 11.73,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.327164,
+          25.7988361
+        ]
+      },
+      "properties": {
+        "Estacion": "NORTE",
+        "Clave": "N",
+        "Municipio": "Escobedo",
+        "PM10 (ug/m3)": 40.0,
+        "PM2.5 (ug/m3)": "ND",
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.1882,
+          25.777475
+        ]
+      },
+      "properties": {
+        "Estacion": "NORESTE 2",
+        "Clave": "NE2",
+        "Municipio": "Apodaca",
+        "PM10 (ug/m3)": 41.0,
+        "PM2.5 (ug/m3)": 16.0,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.095616,
+          25.646126
+        ]
+      },
+      "properties": {
+        "Estacion": "SURESTE 2",
+        "Clave": "SE2",
+        "Municipio": "Juárez",
+        "PM10 (ug/m3)": 35.0,
+        "PM2.5 (ug/m3)": 16.0,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.412853,
+          25.665275
+        ]
+      },
+      "properties": {
+        "Estacion": "SUROESTE 2",
+        "Clave": "SO2",
+        "Municipio": "San Pedro",
+        "PM10 (ug/m3)": 31.0,
+        "PM2.5 (ug/m3)": 13.0,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -99.9953028,
+          25.6008639
+        ]
+      },
+      "properties": {
+        "Estacion": "SURESTE 3",
+        "Clave": "SE3",
+        "Municipio": "Cadereyta",
+        "PM10 (ug/m3)": 29.0,
+        "PM2.5 (ug/m3)": 11.0,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.310019,
+          25.7297587
+        ]
+      },
+      "properties": {
+        "Estacion": "NORTE 2",
+        "Clave": "N2",
+        "Municipio": "San Nicolás",
+        "PM10 (ug/m3)": 37.0,
+        "PM2.5 (ug/m3)": 16.0,
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.273936,
+          25.6169806
+        ]
+      },
+      "properties": {
+        "Estacion": "SUR",
+        "Clave": "S",
+        "Municipio": "Monterrey",
+        "PM10 (ug/m3)": "ND",
+        "PM2.5 (ug/m3)": "ND",
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.078411,
+          25.7905833
+        ]
+      },
+      "properties": {
+        "Estacion": "ESTE",
+        "Clave": "NE3",
+        "Municipio": "Pesquería",
+        "PM10 (ug/m3)": "ND",
+        "PM2.5 (ug/m3)": "ND",
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -100.46361112,
+          25.785
+        ]
+      },
+      "properties": {
+        "Estacion": "NOROESTE 3",
+        "Clave": "NO3",
+        "Municipio": "García",
+        "PM10 (ug/m3)": "ND",
+        "PM2.5 (ug/m3)": "ND",
+        "Temperatura (C)": "ND",
+        "Humedad Relativa (%)": "ND",
+        "Radiacion Solar (W/m2)": "ND",
+        "Fecha": "2026-10-15 16:00:00",
+        "Red": "Red SIMA (Oficial)"
+      }
+    }
+  ]
+}
