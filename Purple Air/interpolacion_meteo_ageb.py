@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent
 RAIZ_PROYECTO = BASE_DIR.parent
 
 CSV_PURPLEAIR = BASE_DIR / "purpleair_meteo_lecturas.csv"
-CSV_CENSO_INEGI = RAIZ_PROYECTO / "cpv2020.csv"
+CSV_CENSO_INEGI = RAIZ_PROYECTO / "shp" / "cpv2020.csv"
 ARCHIVO_SHP_COLONIAS = RAIZ_PROYECTO / "shp" / "2025_1_19_A.shp"
 
 SALIDA_TEMP_GEOJSON = BASE_DIR / "AQ_Temperatura_AGEB.geojson"
