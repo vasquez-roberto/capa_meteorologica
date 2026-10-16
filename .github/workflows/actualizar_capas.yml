@@ -1,0 +1,46 @@
+name: Actualizacion Automatica Capas Meteorologicas SIMA y PurpleAir
+
+on:
+  schedule:
+    # Se ejecuta al minuto 5 de cada hora (UTC)
+    - cron: '5 * * * *'
+  workflow_dispatch: # Permite ejecucion manual desde la interfaz de GitHub
+
+jobs:
+  actualizar-capas:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonar repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar entorno Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests pandas geopandas shapely scipy beautifulsoup4 python-dotenv
+
+    - name: 1. Ejecutar capturas de PurpleAir
+      env:
+        PURPLEAIR_API_KEY: ${{ secrets.PURPLEAIR_API_KEY }}
+      run: |
+        echo "Procesando subcarpeta Purple Air..."
+        python "Purple Air/purpleair_meteo.py"
+        python "Purple Air/interpolacion_meteo_ageb.py"
+
+    - name: 2. Ejecutar capturas de SIMA
+      run: |
+        echo "Procesando subcarpeta SIMA..."
+        python "SIMA/sima_meteo.py"
+
+    - name: Guardar cambios y actualizar GeoJSONs en GitHub
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add .
+        git diff-index --quiet HEAD || git commit -m "Auto-update: Lecturas y GeoJSONs actualizados [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+        git push
