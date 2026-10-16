@@ -1,8 +1,17 @@
 from datetime import datetime
 import json
 import os
+from pathlib import Path
 import pandas as pd
 import requests
+
+# Definición de la ruta base dinámica (se enfoca en la subcarpeta 'SIMA')
+BASE_DIR = Path(__file__).resolve().parent
+
+# Rutas de salida garantizadas en la subcarpeta 'SIMA'
+CSV_ACTUAL = BASE_DIR / "sima_meteo_lecturas.csv"
+CSV_HISTORICO = BASE_DIR / "sima_meteo_historico.csv"
+GEOJSON_SALIDA = BASE_DIR / "sima_meteo.geojson"
 
 ESTACIONES_SIMA = [
     {
@@ -149,7 +158,7 @@ def a_num(val):
 
 registros = []
 timestamp_actual = datetime.now().strftime("%Y-%m-%d %H:00:00")
-print("Consultando SIMA (Partículas + Meteorología)...")
+print("Consultando Red SIMA (Partículas + Meteorología)...")
 
 for est in ESTACIONES_SIMA:
   session = requests.Session()
@@ -196,20 +205,18 @@ for est in ESTACIONES_SIMA:
 
 df = pd.DataFrame(registros)
 
-# 1. CSV Actual (sobrescribe)
-CSV_ACTUAL = "sima_meteo_lecturas.csv"
+# 1. CSV Actual en la carpeta SIMA (sobrescribe)
 df.to_csv(CSV_ACTUAL, index=False, encoding="utf-8-sig")
 
-# 2. CSV Histórico (acumula)
-CSV_HISTORICO = "sima_meteo_historico.csv"
-if not os.path.exists(CSV_HISTORICO):
+# 2. CSV Histórico en la carpeta SIMA (acumula)
+if not CSV_HISTORICO.exists():
   df.to_csv(CSV_HISTORICO, index=False, encoding="utf-8-sig")
 else:
   df.to_csv(
       CSV_HISTORICO, mode="a", header=False, index=False, encoding="utf-8-sig"
   )
 
-# 3. GeoJSON para ArcGIS
+# 3. GeoJSON en la carpeta SIMA
 features = []
 for _, r in df.iterrows():
   feature = {
@@ -242,10 +249,12 @@ geojson_data = {
     "features": features,
 }
 
-with open("sima_meteo.geojson", "w", encoding="utf-8") as f:
+with open(GEOJSON_SALIDA, "w", encoding="utf-8") as f:
   json.dump(geojson_data, f, ensure_ascii=False, indent=2)
 
 print(
-    f"Éxito SIMA: '{CSV_ACTUAL}', '{CSV_HISTORICO}' y 'sima_meteo.geojson'"
-    " generados."
+    f"Éxito SIMA: Archivos generados correctamente en '{BASE_DIR.name}':\n"
+    f" - '{CSV_ACTUAL.name}'\n"
+    f" - '{CSV_HISTORICO.name}'\n"
+    f" - '{GEOJSON_SALIDA.name}'"
 )
