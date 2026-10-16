@@ -185,14 +185,14 @@ for est in ESTACIONES_SIMA:
     for item in data_conc:
       param = str(item.get("Parameter", "")).strip().upper()
       val = item.get("HrAveData")
-      if "PM10" in param:
+      if param in ["PM10"]:
         pm10 = a_num(val)
-      elif "PM2" in param or "PM25" in param:
+      elif param in ["PM2.5", "PM25"]:
         pm25 = a_num(val)
   except Exception:
     pass
 
-  # 2. Extracción de Meteorología Oficial
+  # 2. Extracción de Meteorología Oficial (con coincidencia estricta)
   url_estacion_meteo = f"{BASE_URL_METEO}?estacion1={est['param']}"
   session.get(url_estacion_meteo, headers=HEADERS, timeout=10)
 
@@ -206,11 +206,11 @@ for est in ESTACIONES_SIMA:
       param = str(item.get("Parameter", "")).strip().upper()
       val = item.get("HrAveData")
 
-      if "TOUT" in param or "TMP" in param or "TEMP" in param:
+      if param in ["TOUT", "TMP", "TEMP"]:
         temp = a_num(val)
-      elif "RH" in param or "HUM" in param:
+      elif param in ["RH", "HR"]:
         rh = a_num(val)
-      elif "SR" in param or "RAD" in param:
+      elif param in ["SR", "RAD", "SRAD"]:
         rs = a_num(val)
   except Exception:
     pass
@@ -224,14 +224,14 @@ for est in ESTACIONES_SIMA:
       "PM25_ugm3": pm25 if pm25 is not None else "ND",
       "Temperatura_C": temp if temp is not None else "ND",
       "Humedad_pct": rh if rh is not None else "ND",
-      "RadiacionSolar_kWhm2": rs if rs is not None else "ND",
+      "RadiacionSolar_Wm2": rs if rs is not None else "ND",
       "lat": est["lat"],
       "lon": est["lon"],
   })
 
 df = pd.DataFrame(registros)
 
-# Exportaciones en la carpeta 'SIMA'
+# Exportaciones a la carpeta 'SIMA'
 df.to_csv(CSV_ACTUAL, index=False, encoding="utf-8-sig")
 
 if not CSV_HISTORICO.exists():
@@ -253,11 +253,11 @@ for _, r in df.iterrows():
           "Estacion": str(r["Estacion"]),
           "Clave": str(r["Clave"]),
           "Municipio": str(r["Municipio"]),
-          "PM10 (ug/m3)": r["PM10_ugm3"],
-          "PM2.5 (ug/m3)": r["PM25_ugm3"],
-          "Temperatura (C)": r["Temperatura_C"],
-          "Humedad Relativa (%)": r["Humedad_pct"],
-          "Radiacion Solar (kWh/m2)": r["RadiacionSolar_kWhm2"],
+          "PM10_ugm3": r["PM10_ugm3"],
+          "PM25_ugm3": r["PM25_ugm3"],
+          "Temperatura_C": r["Temperatura_C"],
+          "Humedad_pct": r["Humedad_pct"],
+          "RadiacionSolar_Wm2": r["RadiacionSolar_Wm2"],
           "Fecha": r["timestamp"],
           "Red": "Red SIMA (Oficial)",
       },
@@ -276,6 +276,6 @@ with open(GEOJSON_SALIDA, "w", encoding="utf-8") as f:
   json.dump(geojson_data, f, ensure_ascii=False, indent=2)
 
 print(
-    f"Éxito: Datos oficiales de meteorología y partículas extraídos en"
+    f"Éxito: Proceso completado. Archivos actualizados en la subcarpeta"
     f" '{BASE_DIR.name}'."
 )
