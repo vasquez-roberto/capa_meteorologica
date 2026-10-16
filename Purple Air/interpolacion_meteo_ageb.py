@@ -9,16 +9,16 @@ import pandas as pd
 from scipy.spatial import Delaunay
 from shapely.geometry import Point, mapping
 
-# Definición de rutas adaptadas a la estructura de carpetas
-BASE_DIR = Path(__file__).resolve().parent  # Carpeta 'Purple Air'
-RAIZ_PROYECTO = BASE_DIR.parent  # Carpeta raíz 'Capa de Meteorologia'
+# Definición de rutas adaptadas dinámicamente a la estructura de carpetas
+BASE_DIR = Path(__file__).resolve().parent  # Subcarpeta 'Purple Air'
+RAIZ_PROYECTO = BASE_DIR.parent  # Carpeta raíz del proyecto
 
 # Archivos de entrada
 CSV_PURPLEAIR = BASE_DIR / "purpleair_meteo_lecturas.csv"
-CSV_CENSO_INEGI = RAIZ_PROYECTO / "shp" / "cpv2020.csv"  # Ubicación exacta dentro de /shp/
+CSV_CENSO_INEGI = RAIZ_PROYECTO / "shp" / "cpv2020.csv"
 ARCHIVO_SHP_COLONIAS = RAIZ_PROYECTO / "shp" / "2025_1_19_A.shp"
 
-# Archivos de salida (se guardan dentro de 'Purple Air')
+# Archivos de salida (Garantizados dentro de 'Purple Air/')
 SALIDA_TEMP_GEOJSON = BASE_DIR / "AQ_Temperatura_AGEB.geojson"
 SALIDA_RH_GEOJSON = BASE_DIR / "AQ_Humedad_AGEB.geojson"
 CSV_HISTORICO_INTERP = BASE_DIR / "interpolacion_meteo_historico.csv"
@@ -61,8 +61,8 @@ def cargar_datos_censales(ruta_csv):
         .copy()
     )
     print(
-        f"Éxito: Censo INEGI procesado ({len(df_limpio)} AGEBs vinculados a"
-        " 13 dígitos)."
+        f"Éxito: Censo INEGI procesado ({len(df_limpio)} AGEBs vinculados a 13"
+        " dígitos)."
     )
     return df_limpio
 
@@ -232,7 +232,10 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         encoding="utf-8-sig",
     )
 
-  print(f"Éxito final: GeoJSONs generados y guardados en '{CSV_HISTORICO_INTERP.name}'.")
+  print(
+      "Éxito final: GeoJSONs generados y guardados en"
+      f" '{CSV_HISTORICO_INTERP.name}'."
+  )
 
 
 if __name__ == "__main__":
@@ -246,6 +249,10 @@ if __name__ == "__main__":
   timestamp_actual = datetime.now().strftime("%Y-%m-%d %H:00:00")
   df_purple = pd.read_csv(CSV_PURPLEAIR)
 
+  # Normalización de coordenadas (soporta 'lat'/'lon' o 'latitude'/'longitude')
+  col_lat = "lat" if "lat" in df_purple.columns else "latitude"
+  col_lon = "lon" if "lon" in df_purple.columns else "longitude"
+
   # Convertir lecturas a formato numérico
   df_purple["Temperatura_C"] = pd.to_numeric(
       df_purple["Temperatura_C"], errors="coerce"
@@ -255,10 +262,10 @@ if __name__ == "__main__":
   )
 
   df_purple = df_purple.dropna(
-      subset=["lat", "lon", "Temperatura_C", "Humedad_pct"]
+      subset=[col_lat, col_lon, "Temperatura_C", "Humedad_pct"]
   )
 
-  puntos = df_purple[["lon", "lat"]].to_numpy()
+  puntos = df_purple[[col_lon, col_lat]].to_numpy()
   temps = df_purple["Temperatura_C"].to_numpy()
   hums = df_purple["Humedad_pct"].to_numpy()
 
