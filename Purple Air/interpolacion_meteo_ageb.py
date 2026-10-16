@@ -9,12 +9,12 @@ import pandas as pd
 from scipy.spatial import Delaunay
 from shapely.geometry import Point, mapping
 
-# Definición correcta de rutas basadas en tu estructura
+# Rutas del proyecto
 BASE_DIR = Path(__file__).resolve().parent
 RAIZ_PROYECTO = BASE_DIR.parent
 
 CSV_PURPLEAIR = BASE_DIR / "purpleair_meteo_lecturas.csv"
-CSV_CENSO_INEGI = RAIZ_PROYECTO / "shp" / "cpv2020.csv"
+CSV_CENSO_INEGI = RAIZ_PROYECTO / "cpv2020.csv"
 ARCHIVO_SHP_COLONIAS = RAIZ_PROYECTO / "shp" / "2025_1_19_A.shp"
 
 SALIDA_TEMP_GEOJSON = BASE_DIR / "AQ_Temperatura_AGEB.geojson"
@@ -24,7 +24,6 @@ CSV_HISTORICO_INTERP = BASE_DIR / "interpolacion_meteo_historico.csv"
 
 def cargar_datos_censales(ruta_csv):
   if not ruta_csv.exists():
-    print(f"Aviso: No se encontró el censo en {ruta_csv}")
     return pd.DataFrame()
   df = pd.read_csv(
       ruta_csv,
@@ -81,6 +80,7 @@ def cargar_colonias(archivo_shp, df_censo):
 
 
 def interpolar_lineal(punto, triangulo_indices, puntos, valores):
+  """Interpolación plana dentro de un triángulo de Delaunay."""
   v0, v1, v2 = puntos[triangulo_indices]
   z0, z1, z2 = valores[triangulo_indices]
   try:
@@ -94,7 +94,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
   try:
     triangulacion = Delaunay(puntos_data)
   except Exception as e:
-    print(f"Error al generar triangulación Delaunay: {e}")
+    print(f"Error Delaunay: {e}")
     triangulacion = None
 
   features_temp, features_rh, filas_historico = [], [], []
@@ -129,6 +129,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
       else:
         v_temp = v_rh = None
 
+    # Asignar None explícito si no hay dato (nunca cadenas de texto)
     v_temp_val = (
         round(float(v_temp), 2)
         if v_temp is not None and np.isfinite(v_temp)
@@ -138,18 +139,16 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         round(float(v_rh), 2) if v_rh is not None and np.isfinite(v_rh) else None
     )
 
-    # GeoJSON Temperatura
+    # GeoJSON Temperatura (Estructura para rampa continua en ArcGIS)
     features_temp.append({
         "type": "Feature",
         "geometry": mapping(geom),
         "properties": {
-            " Temperatura (C)": (
-                v_temp_val if v_temp_val is not None else "Sin datos"
-            ),
+            "Temperatura_C": v_temp_val,
             "Poblacion Total": pob,
             "Clave Geografica (CVEGEO)": cvegeo,
             "Fecha": timestamp,
-            "Fuente": "Interpolacion PurpleAir",
+            "Fuente": "Interpolacion Delaunay PurpleAir",
         },
     })
 
@@ -158,17 +157,15 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         "type": "Feature",
         "geometry": mapping(geom),
         "properties": {
-            " Humedad Relativa (%)": (
-                v_rh_val if v_rh_val is not None else "Sin datos"
-            ),
+            "Humedad_Relativa_pct": v_rh_val,
             "Poblacion Total": pob,
             "Clave Geografica (CVEGEO)": cvegeo,
             "Fecha": timestamp,
-            "Fuente": "Interpolacion PurpleAir",
+            "Fuente": "Interpolacion Delaunay PurpleAir",
         },
     })
 
-    # Fila para el CSV Histórico
+    # Histórico CSV
     filas_historico.append({
         "timestamp": timestamp,
         "cvegeo": cvegeo,
@@ -194,7 +191,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         indent=2,
     )
 
-  # Guardar / Anexar al CSV Histórico
+  # CSV Histórico acumulativo
   df_hist = pd.DataFrame(filas_historico)
   if not CSV_HISTORICO_INTERP.exists():
     df_hist.to_csv(CSV_HISTORICO_INTERP, index=False, encoding="utf-8-sig")
@@ -208,7 +205,8 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
     )
 
   print(
-      f"Éxito: Generados GeoJSONs y acumulado en '{CSV_HISTORICO_INTERP.name}'."
+      f"Éxito: Capas de Delaunay numéricas puras creadas para ArcGIS y guardadas"
+      f" en '{CSV_HISTORICO_INTERP.name}'."
   )
 
 
@@ -223,7 +221,6 @@ if __name__ == "__main__":
   timestamp_actual = datetime.now().strftime("%Y-%m-%d %H:00:00")
   df_purple = pd.read_csv(CSV_PURPLEAIR)
 
-  # Convertir a valores numéricos
   df_purple["Temperatura_C"] = pd.to_numeric(
       df_purple["Temperatura_C"], errors="coerce"
   )
