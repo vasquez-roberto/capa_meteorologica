@@ -98,7 +98,7 @@ for _, row in df_sensores.iterrows():
           "Temperatura (C)": registro["Temperatura_C"],
           "Humedad Relativa (%)": registro["Humedad_pct"],
           "Fecha": timestamp_actual,
-          "Red": "PurpleAir (Comunitaria)",
+          "Red": "PurpleAir",
       },
   }
   features.append(feature)

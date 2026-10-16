@@ -9,45 +9,70 @@ import pandas as pd
 from scipy.spatial import Delaunay
 from shapely.geometry import Point, mapping
 
-# Rutas del proyecto
-BASE_DIR = Path(__file__).resolve().parent
-RAIZ_PROYECTO = BASE_DIR.parent
+# Definición de rutas adaptadas a la estructura de carpetas
+BASE_DIR = Path(__file__).resolve().parent  # Carpeta 'Purple Air'
+RAIZ_PROYECTO = BASE_DIR.parent  # Carpeta raíz 'Capa de Meteorologia'
 
+# Archivos de entrada
 CSV_PURPLEAIR = BASE_DIR / "purpleair_meteo_lecturas.csv"
-CSV_CENSO_INEGI = RAIZ_PROYECTO / "shp" / "cpv2020.csv"
+CSV_CENSO_INEGI = RAIZ_PROYECTO / "shp" / "cpv2020.csv"  # Ubicación exacta dentro de /shp/
 ARCHIVO_SHP_COLONIAS = RAIZ_PROYECTO / "shp" / "2025_1_19_A.shp"
 
+# Archivos de salida (se guardan dentro de 'Purple Air')
 SALIDA_TEMP_GEOJSON = BASE_DIR / "AQ_Temperatura_AGEB.geojson"
 SALIDA_RH_GEOJSON = BASE_DIR / "AQ_Humedad_AGEB.geojson"
 CSV_HISTORICO_INTERP = BASE_DIR / "interpolacion_meteo_historico.csv"
 
 
 def cargar_datos_censales(ruta_csv):
+  """Carga y limpia el censo INEGI estandarizando la clave CVEGEO a 13 dígitos."""
   if not ruta_csv.exists():
+    print(f"Aviso: No se encontró el censo en {ruta_csv}")
     return pd.DataFrame()
-  df = pd.read_csv(
-      ruta_csv,
-      dtype={"ENTIDAD": str, "MUN": str, "LOC": str, "AGEB": str, "MZA": str},
-  )
-  if "MZA" in df.columns:
-    df = df[df["MZA"] == "000"].copy()
-  df = df[df["AGEB"] != "0000"].copy()
-  df["CVEGEO_CENSO"] = (
-      df["ENTIDAD"].str.zfill(2)
-      + df["MUN"].str.zfill(3)
-      + df["LOC"].str.zfill(4)
-      + df["AGEB"].str.zfill(4)
-  )
-  if "POBTOT" in df.columns:
-    df["POBLACION_TOTAL"] = (
-        pd.to_numeric(df["POBTOT"], errors="coerce").fillna(0).astype(int)
+
+  try:
+    df = pd.read_csv(ruta_csv, dtype=str, low_memory=False)
+
+    # Filtrar nivel AGEB urbano (MZA == '000' y AGEB != '0000')
+    if "MZA" in df.columns:
+      df = df[df["MZA"].str.zfill(3) == "000"].copy()
+    if "AGEB" in df.columns:
+      df = df[df["AGEB"] != "0000"].copy()
+
+    # Construir CVEGEO estandarizada a 13 dígitos (ENTIDAD + MUN + LOC + AGEB)
+    ent = df["ENTIDAD"].astype(str).str.zfill(2)
+    mun = df["MUN"].astype(str).str.zfill(3)
+    loc = df["LOC"].astype(str).str.zfill(4)
+    ageb = df["AGEB"].astype(str).str.zfill(4)
+
+    df["CVEGEO_CENSO"] = ent + mun + loc + ageb
+
+    # Extraer población total
+    if "POBTOT" in df.columns:
+      df["POBLACION_TOTAL"] = (
+          pd.to_numeric(df["POBTOT"], errors="coerce").fillna(0).astype(int)
+      )
+    else:
+      df["POBLACION_TOTAL"] = 0
+
+    df_limpio = (
+        df[["CVEGEO_CENSO", "POBLACION_TOTAL"]]
+        .drop_duplicates(subset=["CVEGEO_CENSO"])
+        .copy()
     )
-  else:
-    df["POBLACION_TOTAL"] = 0
-  return df[["CVEGEO_CENSO", "POBLACION_TOTAL"]]
+    print(
+        f"Éxito: Censo INEGI procesado ({len(df_limpio)} AGEBs vinculados a"
+        " 13 dígitos)."
+    )
+    return df_limpio
+
+  except Exception as e:
+    print(f"Error cargando censo INEGI: {e}")
+    return pd.DataFrame()
 
 
 def cargar_colonias(archivo_shp, df_censo):
+  """Carga la capa de AGEBs (SHP), proyecta a WGS84 y cruza los datos censales."""
   gdf = gpd.read_file(archivo_shp)
   if gdf.crs is None:
     raise ValueError("El SHP no tiene CRS definido.")
@@ -80,7 +105,7 @@ def cargar_colonias(archivo_shp, df_censo):
 
 
 def interpolar_lineal(punto, triangulo_indices, puntos, valores):
-  """Interpolación plana dentro de un triángulo de Delaunay."""
+  """Calcula la interpolación lineal plana dentro del triángulo de Delaunay."""
   v0, v1, v2 = puntos[triangulo_indices]
   z0, z1, z2 = valores[triangulo_indices]
   try:
@@ -91,10 +116,11 @@ def interpolar_lineal(punto, triangulo_indices, puntos, valores):
 
 
 def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp):
+  """Ejecuta la interpolación espacial, genera GeoJSONs numéricos y guarda el histórico."""
   try:
     triangulacion = Delaunay(puntos_data)
   except Exception as e:
-    print(f"Error Delaunay: {e}")
+    print(f"Error generando Triangulación de Delaunay: {e}")
     triangulacion = None
 
   features_temp, features_rh, filas_historico = [], [], []
@@ -104,6 +130,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
     cvegeo = colonia["cvegeo"]
     pob = colonia["poblacion_total"]
 
+    # 1. Verificar si hay sensores dentro del polígono del AGEB
     indices_dentro = [
         i
         for i, (lon, lat) in enumerate(puntos_data)
@@ -116,6 +143,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
     elif triangulacion is None:
       v_temp = v_rh = None
     else:
+      # 2. Interpolación lineal en el triángulo de Delaunay usando el centroide
       centroide = geom.centroid
       punto = np.array([centroide.x, centroide.y])
       indice = triangulacion.find_simplex(punto)
@@ -129,7 +157,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
       else:
         v_temp = v_rh = None
 
-    # Asignar None explícito si no hay dato (nunca cadenas de texto)
+    # Mantenemos valores flotantes puros (None en Python -> null en JSON) para habilitar rampas de color en ArcGIS
     v_temp_val = (
         round(float(v_temp), 2)
         if v_temp is not None and np.isfinite(v_temp)
@@ -139,7 +167,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         round(float(v_rh), 2) if v_rh is not None and np.isfinite(v_rh) else None
     )
 
-    # GeoJSON Temperatura (Estructura para rampa continua en ArcGIS)
+    # GeoJSON Temperatura
     features_temp.append({
         "type": "Feature",
         "geometry": mapping(geom),
@@ -165,7 +193,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         },
     })
 
-    # Histórico CSV
+    # Fila para el CSV Histórico
     filas_historico.append({
         "timestamp": timestamp,
         "cvegeo": cvegeo,
@@ -174,7 +202,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         "poblacion_total": pob,
     })
 
-  # Guardar GeoJSONs
+  # Exportar archivos GeoJSON
   with open(SALIDA_TEMP_GEOJSON, "w", encoding="utf-8") as f:
     json.dump(
         {"type": "FeatureCollection", "features": features_temp},
@@ -191,7 +219,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         indent=2,
     )
 
-  # CSV Histórico acumulativo
+  # Exportar / Anexar al CSV Histórico
   df_hist = pd.DataFrame(filas_historico)
   if not CSV_HISTORICO_INTERP.exists():
     df_hist.to_csv(CSV_HISTORICO_INTERP, index=False, encoding="utf-8-sig")
@@ -204,10 +232,7 @@ def procesar_interpolaciones(colonias_data, puntos_data, temps, hums, timestamp)
         encoding="utf-8-sig",
     )
 
-  print(
-      f"Éxito: Capas de Delaunay numéricas puras creadas para ArcGIS y guardadas"
-      f" en '{CSV_HISTORICO_INTERP.name}'."
-  )
+  print(f"Éxito final: GeoJSONs generados y guardados en '{CSV_HISTORICO_INTERP.name}'.")
 
 
 if __name__ == "__main__":
@@ -221,6 +246,7 @@ if __name__ == "__main__":
   timestamp_actual = datetime.now().strftime("%Y-%m-%d %H:00:00")
   df_purple = pd.read_csv(CSV_PURPLEAIR)
 
+  # Convertir lecturas a formato numérico
   df_purple["Temperatura_C"] = pd.to_numeric(
       df_purple["Temperatura_C"], errors="coerce"
   )
