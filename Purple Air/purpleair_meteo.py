@@ -5,7 +5,14 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+# Base estricta alineada a la subcarpeta 'Purple Air'
 BASE_DIR = Path(__file__).resolve().parent
+
+# Archivos de entrada y salida dentro de 'Purple Air/'
+CSV_SENSORES = BASE_DIR / "sensores_detectados.csv"
+CSV_ACTUAL = BASE_DIR / "purpleair_meteo_lecturas.csv"
+CSV_HISTORICO = BASE_DIR / "purpleair_meteo_historico.csv"
+GEOJSON_SALIDA = BASE_DIR / "purpleair_meteo.geojson"
 
 
 def cargar_env(ruta_env):
@@ -21,14 +28,13 @@ def cargar_env(ruta_env):
 
 cargar_env(BASE_DIR / ".env")
 
-API_KEY = os.getenv("API_KEY_PURPLEAIR")
-CSV_SENSORES = BASE_DIR / "sensores_detectados.csv"
+API_KEY = os.getenv("API_KEY_PURPLEAIR") or os.getenv("PURPLEAIR_API_KEY")
 CAMPOS = "pm1.0,pm2.5,pm10.0,temperature,humidity"
 
 
 def consultar_purpleair(sensor_index):
   if not API_KEY:
-    raise RuntimeError("Falta API_KEY_PURPLEAIR en el archivo .env")
+    raise RuntimeError("Falta API_KEY_PURPLEAIR en las variables de entorno")
   url = f"https://api.purpleair.com/v1/sensors/{sensor_index}?fields={CAMPOS}"
   try:
     r = requests.get(url, headers={"X-API-Key": API_KEY}, timeout=15)
@@ -47,6 +53,10 @@ def consultar_purpleair(sensor_index):
 
 
 print("Consultando PurpleAir (Estandarizado a Red SIMA)...")
+
+if not CSV_SENSORES.exists():
+  raise FileNotFoundError(f"No se encontró el catálogo en {CSV_SENSORES}")
+
 df_sensores = pd.read_csv(CSV_SENSORES).dropna(
     subset=["latitude", "longitude", "sensor_index"]
 )
@@ -106,12 +116,10 @@ for _, row in df_sensores.iterrows():
 df_purple = pd.DataFrame(registros)
 
 # 1. CSV Actual estandarizado (sobrescribe)
-CSV_ACTUAL = "purpleair_meteo_lecturas.csv"
 df_purple.to_csv(CSV_ACTUAL, index=False, encoding="utf-8-sig")
 
 # 2. CSV Histórico estandarizado (acumula)
-CSV_HISTORICO = "purpleair_meteo_historico.csv"
-if not os.path.exists(CSV_HISTORICO):
+if not CSV_HISTORICO.exists():
   df_purple.to_csv(CSV_HISTORICO, index=False, encoding="utf-8-sig")
 else:
   df_purple.to_csv(
@@ -128,10 +136,11 @@ geojson_purple = {
     "features": features,
 }
 
-with open("purpleair_meteo.geojson", "w", encoding="utf-8") as f:
+with open(GEOJSON_SALIDA, "w", encoding="utf-8") as f:
   json.dump(geojson_purple, f, ensure_ascii=False, indent=2)
 
 print(
     f"Éxito PurpleAir: Datos convertidos a °C y estandarizados con SIMA.\nArchivos"
-    f" generados: '{CSV_ACTUAL}', '{CSV_HISTORICO}' y 'purpleair_meteo.geojson'."
+    f" generados en '{BASE_DIR.name}': '{CSV_ACTUAL.name}',"
+    f" '{CSV_HISTORICO.name}' y '{GEOJSON_SALIDA.name}'."
 )
