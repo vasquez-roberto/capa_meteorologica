@@ -1,29 +1,51 @@
-# Módulo de Monitoreo e Interpolación Espacial: Red PurpleAir (ZMM)
+# Módulo de Monitoreo e Interpolación Geoestadística: Red SIMA (ZMM)
 
-Este módulo automatiza la captura, estandarización y modelado espacial de las lecturas meteorológicas y de calidad del aire provenientes de la red comunitaria de sensores **PurpleAir** instalados en la Zona Metropolitana de Monterrey (ZMM).
+Este módulo automatiza la captura y el procesamiento geoestadístico de las variables meteorológicas oficiales del **Sistema Integral de Monitoreo Ambiental (SIMA)** de Gobierno del Estado de Nuevo León, aplicando **Kriging Ordinario** sobre la estructura territorial de **AGEB (INEGI)**.
 
 ---
 
 ## ¿Qué hace este módulo?
 
-1. **Monitoreo Continuo**: Extrae lecturas en tiempo real de material particulado ($PM_{1.0}$, $PM_{2.5}$, $PM_{10}$) y datos meteorológicos (Temperatura y Humedad Relativa) de la red de sensores PurpleAir en la ZMM.
-2. **Estandarización de Datos**: Convierte automáticamente las lecturas de temperatura de grados Fahrenheit a Celsius para mantener la coherencia con la red oficial SIMA.
-3. **Modelado Espacial**: Cruza la información con los polígonos **AGEB de INEGI** y la población del Censo 2020 para generar superficies continuas mediante **Triangulación de Delaunay / Interpolación Baricéntrica**.
-4. **Exportación Integrada**: Genera capas vectoriales GeoJSON estructuradas para su consumo directo y representación visual en **ArcGIS Online**.
+1. **Monitoreo Oficial**: Extrae datos en tiempo real de las 15 estaciones oficiales de la red SIMA para las variables meteorológicas de Temperatura Exterior (`TOUT`), Humedad Relativa (`RH`) y Radiación Solar (`SR`).
+2. **Corrección Geométrica**: Reproyecta temporalmente la capa de AGEBs a UTM Zona 14N (`EPSG:32614`) para calcular los centroides en metros exactos antes de pasarlos al espacio geográfico `EPSG:4326`, evitando distorsiones de distancia.
+3. **Modelado Geoestadístico (Kriging Ordinario)**: Modela las superficies continuas mediante `pykrige`, calculando por cada AGEB tanto la estimación del valor esperado como la varianza del error de estimación ($\sigma^2_k$) para evaluar la incertidumbre espacial.
+4. **Validación Metodológica**: Incluye un script de evaluación cruzada Leave-One-Out (LOOCV) que permite medir matemáticamente el desempeño ($MAE$, $RMSE$, $R^2$) del modelo Kriging sobre la red.
+5. **Exportación SIG**: Genera GeoJSONs optimizados para visualización y simbología por incertidumbre en **ArcGIS Online**.
 
 ---
 
 ## ¿Cómo lo hacemos?
 
-### 1. Extracción y Estandarización (`purpleair_meteo.py`)
-* **Consulta a API**: Se conecta a la API v1 de PurpleAir (`https://api.purpleair.com/v1/sensors`) utilizando el catálogo local de sensores detectados (`sensores_detectados.csv`).
-* **Conversión Térmica**: Aplica la conversión explícita:
-  $$°C = \frac{F - 32}{1.8}$$
-* **Generación de Salidas**: 
-  * `purpleair_meteo_lecturas.csv`: Snapshot de la lectura actual por sensor.
-  * `purpleair_meteo_historico.csv`: Registro histórico acumulativo.
-  * `purpleair_meteo.geojson`: Capa puntual vectorial para mapeo en SIG.
+### 1. Extracción Oficial (`sima_meteo.py`)
+* **Parsing de Endpoints**: Se conecta a los endpoints validados de SIMA (`api_conc_correcto.php` y `api_meteo_correcto.php`).
+* **Estandarización de Variables**: Elimina caracteres invisibles en blanco y mapea estrictamente las columnas `TOUT` (Temperatura °C), `RH` (Humedad %) y `SR` (Radiación $W/m^2$).
+* **Salidas Generadas**:
+  * `sima_meteo_lecturas.csv`: Lectura actual por estación oficial.
+  * `sima_meteo_historico.csv`: Registro histórico acumulativo.
 
-### 2. Interpolación Espacial por AGEB (`interpolacion_meteo_ageb.py`)
-* **Vinculación Censo-Shapefile**: Lee el shapefile de AGEBs (`2025_1_19_A.shp`) y cruza los datos del Censo INEGI 2020 (`cpv2020.csv`), estandarizando la clave `CVEGEO` a 13 dígitos.
-* **Interpolación por Triangulación de Delaunay**: Construye una red de triángulos sin solapamiento basada en la ubicación de los sensores (`scipy.spatial.Delaunay`). Para cada AGEB, toma
+### 2. Interpolación por Kriging Ordinario (`interpolacion_meteo_sima_ageb.py`)
+* **Ajuste de Variogramas**:
+  * **Temperatura y Humedad**: Aplica modelo de semivariograma Esférico (`spherical`).
+  * **Radiación Solar**: Aplica modelo de semivariograma Lineal (`linear`).
+* **Generación de Indicadores**: Asigna a cada polígono AGEB el valor estimado y su varianza asociada (`Var_Temp`, `Var_Hum`, `Var_Rad`).
+* **Archivos Exportados**:
+  * `sima_Temperatura_AGEB.geojson`, `sima_Humedad_AGEB.geojson`, `sima_Radiacion_AGEB.geojson`: Capas vectoriales para ArcGIS Online.
+  * `sima_interpolacion_lecturas.csv` e `sima_interpolacion_historico.csv`: Registros alfa-numéricos por AGEB.
+
+### 3. Validación Cruzada LOOCV (`validar_confiabilidad_kriging.py`)
+* **Evaluación Dejar-Uno-Fuera**: Retira iterativamente una estación, predice su valor con las $N-1$ restantes y calcula métricas globales de confiabilidad:
+  * **MAE (Error Absoluto Medio)**: $6.49\text{ °C}$
+  * **RMSE (Error Cuadrático Medio)**: $7.90\text{ °C}$
+  * **$R^2$ Score**: $-0.165$ (Demuestra alta incertidumbre al usar únicamente 15 puntos para toda la ZMM).
+  * **Varianza Promedio ($\sigma^2$)**: $57.52$
+
+---
+
+## ¿Cómo correrlo?
+
+### 1. Requisitos Previos
+
+Asegúrate de contar con las librerías necesarias instaladas:
+
+```bash
+pip install pandas geopandas numpy pykrige scikit-learn shapely
