@@ -21,13 +21,12 @@ GEOJSON_TEMP = BASE_DIR / "sima_Temperatura_AGEB.geojson"
 GEOJSON_HUM = BASE_DIR / "sima_Humedad_AGEB.geojson"
 GEOJSON_RAD = BASE_DIR / "sima_Radiacion_AGEB.geojson"
 
-
+########################################################################################
 def ejecutar_kriging_ordinario(
-    lons, lats, valores, target_lons, target_lats, modelo_variograma="linear"
+    lons, lats, valores, target_lons, target_lats, modelo_variograma="spherical"
 ):
   """Ejecuta Kriging Ordinario y retorna la estimación y la varianza del error."""
   try:
-    # Construcción y ajuste del modelo Geoestadístico
     OK = OrdinaryKriging(
         lons,
         lats,
@@ -38,12 +37,10 @@ def ejecutar_kriging_ordinario(
         exact_values=True,
     )
 
-    # Evaluación puntual sobre los centroides de las AGEBs
     z_est, ss_var = OK.execute("points", target_lons, target_lats)
     return np.round(z_est.data, 3), np.round(ss_var.data, 4)
   except Exception as e:
     print(f"Error al ejecutar Kriging: {e}")
-    # Retornar NaNs si hay fallo de convergencia por matriz singular
     return np.full(len(target_lons), np.nan), np.full(len(target_lons), np.nan)
 
 
@@ -60,7 +57,7 @@ for col in ["Temperatura_C", "Humedad_pct", "RadiacionSolar_Wm2"]:
       df_sima[col].replace("ND", np.nan), errors="coerce"
   )
 
-# 2. Cargar Shapefile AGEB
+# 2. Cargar Shapefile AGEB y calcular centroides métricos en UTM 14N
 if not SHP_AGEB.exists():
   raise FileNotFoundError(f"No se encontró el shapefile {SHP_AGEB}")
 
@@ -68,9 +65,12 @@ gdf_ageb = gpd.read_file(SHP_AGEB)
 if gdf_ageb.crs is None or gdf_ageb.crs.to_epsg() != 4326:
   gdf_ageb = gdf_ageb.to_crs(epsg=4326)
 
-centroides = gdf_ageb.geometry.centroid
-target_lons = centroides.x.values
-target_lats = centroides.y.values
+# Reproyección a UTM 14N para cálculo métrico preciso del centroide
+centroides_utm = gdf_ageb.to_crs(epsg=32614).geometry.centroid
+centroides_wgs84 = centroides_utm.to_crs(epsg=4326)
+
+target_lons = centroides_wgs84.x.values
+target_lats = centroides_wgs84.y.values
 
 timestamp_str = (
     df_sima["timestamp"].iloc[0]

@@ -1,10 +1,11 @@
 from datetime import datetime
 import json
 from pathlib import Path
+import re
 import pandas as pd
 import requests
 
-# Rutas absolutas dinámicas enfocadas en la subcarpeta 'SIMA'
+# Rutas absolutas dinámicas dentro de la subcarpeta 'SIMA'
 BASE_DIR = Path(__file__).resolve().parent
 
 CSV_ACTUAL = BASE_DIR / "sima_meteo_lecturas.csv"
@@ -137,11 +138,12 @@ ESTACIONES_SIMA = [
 BASE_URL_REPORTE = (
     "https://aire.nl.gob.mx/SIMA2017reportes/ReporteDiariosimaIcars_L3.php"
 )
+BASE_URL_API_CONC = (
+    "https://aire.nl.gob.mx/SIMA2017reportes/api_conc_correcto.php"
+)
 BASE_URL_METEO = (
     "https://aire.nl.gob.mx/SIMA2017reportes/ReporteDiarioSimaM.php"
 )
-API_CONC = "https://aire.nl.gob.mx/SIMA2017reportes/api_conc_correcto.php"
-API_METEO = "https://aire.nl.gob.mx/SIMA2017reportes/api_meteo_correcto.php"
 
 HEADERS = {
     "User-Agent": (
@@ -165,55 +167,80 @@ def a_num(val):
     return None
 
 
+def obtener_meteo_oficial_sima(session, param_est):
+  """Captura los datos meteorológicos del informe diario oficial del SIMA."""
+  temp = rh = rs = None
+  try:
+    # Paso 1: Petición inicial para cargar el contexto de la estación
+    session.get(
+        f"{BASE_URL_METEO}?estacion1={param_est}",
+        headers=HEADERS,
+        timeout=10,
+    )
+
+    # Paso 2: Petición con parámetro meteorológico para obtener el reporte completo
+    url = f"{BASE_URL_METEO}?datawr={param_est}&estacion1={param_est}&parametro1=TEMP"
+    resp = session.get(url, headers=HEADERS, timeout=12)
+
+    # Extracción mediante expresiones regulares en la estructura HTML
+    filas = re.findall(
+        r"<tr[^>]*>(.*?)</tr>", resp.text, re.DOTALL | re.IGNORECASE
+    )
+    for fila in filas:
+      celdas = re.findall(
+          r"<t[dh][^>]*>(.*?)</t[dh]>", fila, re.DOTALL | re.IGNORECASE
+      )
+      celdas_limpias = [
+          re.sub(r"<[^>]+>", "", c).strip() for c in celdas if c.strip()
+      ]
+
+      if len(celdas_limpias) >= 3:
+        param_nombre = celdas_limpias[0].lower()
+        val_horario = a_num(celdas_limpias[2])
+
+        if "temperatura" in param_nombre and temp is None:
+          temp = val_horario
+        elif "humedad" in param_nombre and rh is None:
+          rh = val_horario
+        elif (
+            "radiaci" in param_nombre or "solar" in param_nombre
+        ) and rs is None:
+          rs = val_horario
+  except Exception as e:
+    print(f"Error procesando meteorología oficial SIMA ({param_est}): {e}")
+
+  return temp, rh, rs
+
+
 registros = []
 timestamp_actual = datetime.now().strftime("%Y-%m-%d %H:00:00")
-print("Capturando Red SIMA (Partículas + Meteorología oficial en tiempo real)...")
+print("Capturando datos de la Red SIMA (Partículas + Meteorología Oficial)...")
 
 for est in ESTACIONES_SIMA:
   session = requests.Session()
 
-  # 1. Extracción de Partículas PM10 y PM2.5
+  # 1. Extracción de Partículas Criterio
   url_estacion = f"{BASE_URL_REPORTE}?estacion1={est['param']}"
   session.get(url_estacion, headers=HEADERS, timeout=10)
 
-  url_json_conc = f"{API_CONC}?estacion1={est['param']}"
-  resp_conc = session.get(url_json_conc, headers=HEADERS, timeout=10)
+  url_json = f"{BASE_URL_API_CONC}?estacion1={est['param']}"
+  resp_json = session.get(url_json, headers=HEADERS, timeout=10)
 
   pm10 = pm25 = None
   try:
-    data_conc = resp_conc.json()
-    for item in data_conc:
+    data = resp_json.json()
+    for item in data:
       param = str(item.get("Parameter", "")).strip().upper()
       val = item.get("HrAveData")
-      if param in ["PM10"]:
+      if "PM10" in param:
         pm10 = a_num(val)
-      elif param in ["PM2.5", "PM25"]:
+      elif "PM2" in param or "PM25" in param:
         pm25 = a_num(val)
   except Exception:
     pass
 
-  # 2. Extracción de Meteorología Oficial (con coincidencia estricta)
-  url_estacion_meteo = f"{BASE_URL_METEO}?estacion1={est['param']}"
-  session.get(url_estacion_meteo, headers=HEADERS, timeout=10)
-
-  url_json_meteo = f"{API_METEO}?estacion1={est['param']}"
-  resp_meteo = session.get(url_json_meteo, headers=HEADERS, timeout=10)
-
-  temp = rh = rs = None
-  try:
-    data_meteo = resp_meteo.json()
-    for item in data_meteo:
-      param = str(item.get("Parameter", "")).strip().upper()
-      val = item.get("HrAveData")
-
-      if param in ["TOUT", "TMP", "TEMP"]:
-        temp = a_num(val)
-      elif param in ["RH", "HR"]:
-        rh = a_num(val)
-      elif param in ["SR", "RAD", "SRAD"]:
-        rs = a_num(val)
-  except Exception:
-    pass
+  # 2. Extracción de Meteorología Oficial SIMA
+  temp, rh, rs = obtener_meteo_oficial_sima(session, est["param"])
 
   registros.append({
       "timestamp": timestamp_actual,
@@ -231,7 +258,7 @@ for est in ESTACIONES_SIMA:
 
 df = pd.DataFrame(registros)
 
-# Exportaciones a la carpeta 'SIMA'
+# Exportaciones en la carpeta SIMA/
 df.to_csv(CSV_ACTUAL, index=False, encoding="utf-8-sig")
 
 if not CSV_HISTORICO.exists():
@@ -253,11 +280,11 @@ for _, r in df.iterrows():
           "Estacion": str(r["Estacion"]),
           "Clave": str(r["Clave"]),
           "Municipio": str(r["Municipio"]),
-          "PM10_ugm3": r["PM10_ugm3"],
-          "PM25_ugm3": r["PM25_ugm3"],
-          "Temperatura_C": r["Temperatura_C"],
-          "Humedad_pct": r["Humedad_pct"],
-          "RadiacionSolar_Wm2": r["RadiacionSolar_Wm2"],
+          "PM10 (ug/m3)": r["PM10_ugm3"],
+          "PM2.5 (ug/m3)": r["PM25_ugm3"],
+          "Temperatura (C)": r["Temperatura_C"],
+          "Humedad Relativa (%)": r["Humedad_pct"],
+          "Radiacion Solar (W/m2)": r["RadiacionSolar_Wm2"],
           "Fecha": r["timestamp"],
           "Red": "Red SIMA (Oficial)",
       },
@@ -275,7 +302,4 @@ geojson_data = {
 with open(GEOJSON_SALIDA, "w", encoding="utf-8") as f:
   json.dump(geojson_data, f, ensure_ascii=False, indent=2)
 
-print(
-    f"Éxito: Proceso completado. Archivos actualizados en la subcarpeta"
-    f" '{BASE_DIR.name}'."
-)
+print(f"Éxito: Archivos SIMA generados en la carpeta '{BASE_DIR.name}'.")
