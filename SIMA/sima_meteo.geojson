@@ -21,11 +21,11 @@
         "Clave": "CE",
         "Municipio": "Monterrey",
         "PM10 (ug/m3)": 18.0,
-        "PM2.5 (ug/m3)": "ND",
+        "PM2.5 (ug/m3)": 3.46,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -42,12 +42,12 @@
         "Estacion": "SURESTE",
         "Clave": "SE",
         "Municipio": "Guadalupe",
-        "PM10 (ug/m3)": 17.252,
-        "PM2.5 (ug/m3)": 6.816,
+        "PM10 (ug/m3)": 15.675,
+        "PM2.5 (ug/m3)": 2.62,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -64,12 +64,12 @@
         "Estacion": "NORESTE",
         "Clave": "NE",
         "Municipio": "San Nicolás",
-        "PM10 (ug/m3)": 7.13,
-        "PM2.5 (ug/m3)": 4.22,
+        "PM10 (ug/m3)": 6.13,
+        "PM2.5 (ug/m3)": 3.01,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -86,12 +86,12 @@
         "Estacion": "NOROESTE",
         "Clave": "NO",
         "Municipio": "Monterrey",
-        "PM10 (ug/m3)": 13.0,
-        "PM2.5 (ug/m3)": 6.0,
+        "PM10 (ug/m3)": 16.0,
+        "PM2.5 (ug/m3)": 8.0,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -108,12 +108,12 @@
         "Estacion": "SUROESTE",
         "Clave": "SO",
         "Municipio": "Santa Catarina",
-        "PM10 (ug/m3)": 19.5,
-        "PM2.5 (ug/m3)": 2.77,
+        "PM10 (ug/m3)": 16.0,
+        "PM2.5 (ug/m3)": 3.65,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -130,12 +130,12 @@
         "Estacion": "NOROESTE 2",
         "Clave": "NO2",
         "Municipio": "García",
-        "PM10 (ug/m3)": 19.0,
-        "PM2.5 (ug/m3)": 3.89,
+        "PM10 (ug/m3)": 16.0,
+        "PM2.5 (ug/m3)": 2.25,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -152,12 +152,12 @@
         "Estacion": "NORTE",
         "Clave": "N",
         "Municipio": "Escobedo",
-        "PM10 (ug/m3)": 20.0,
-        "PM2.5 (ug/m3)": 6.0,
+        "PM10 (ug/m3)": 16.0,
+        "PM2.5 (ug/m3)": 5.0,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -174,12 +174,12 @@
         "Estacion": "NORESTE 2",
         "Clave": "NE2",
         "Municipio": "Apodaca",
-        "PM10 (ug/m3)": 26.0,
-        "PM2.5 (ug/m3)": 6.0,
+        "PM10 (ug/m3)": 21.0,
+        "PM2.5 (ug/m3)": 2.0,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -196,12 +196,12 @@
         "Estacion": "SURESTE 2",
         "Clave": "SE2",
         "Municipio": "Juárez",
-        "PM10 (ug/m3)": 25.0,
-        "PM2.5 (ug/m3)": 8.0,
+        "PM10 (ug/m3)": 18.0,
+        "PM2.5 (ug/m3)": 4.0,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -218,12 +218,12 @@
         "Estacion": "SUROESTE 2",
         "Clave": "SO2",
         "Municipio": "San Pedro",
-        "PM10 (ug/m3)": 16.0,
-        "PM2.5 (ug/m3)": 6.0,
+        "PM10 (ug/m3)": 18.0,
+        "PM2.5 (ug/m3)": 7.0,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -240,12 +240,12 @@
         "Estacion": "SURESTE 3",
         "Clave": "SE3",
         "Municipio": "Cadereyta",
-        "PM10 (ug/m3)": 18.0,
-        "PM2.5 (ug/m3)": 4.0,
+        "PM10 (ug/m3)": 13.0,
+        "PM2.5 (ug/m3)": 2.0,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -262,12 +262,12 @@
         "Estacion": "NORTE 2",
         "Clave": "N2",
         "Municipio": "San Nicolás",
-        "PM10 (ug/m3)": 13.0,
-        "PM2.5 (ug/m3)": 6.0,
+        "PM10 (ug/m3)": 11.0,
+        "PM2.5 (ug/m3)": 5.0,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -284,12 +284,12 @@
         "Estacion": "SUR",
         "Clave": "S",
         "Municipio": "Monterrey",
-        "PM10 (ug/m3)": 17.918,
-        "PM2.5 (ug/m3)": 10.223,
+        "PM10 (ug/m3)": 15.675,
+        "PM2.5 (ug/m3)": 8.65,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -311,7 +311,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -328,12 +328,12 @@
         "Estacion": "NOROESTE 3",
         "Clave": "NO3",
         "Municipio": "García",
-        "PM10 (ug/m3)": 16.5,
-        "PM2.5 (ug/m3)": 6.0,
+        "PM10 (ug/m3)": 16.0,
+        "PM2.5 (ug/m3)": 6.5,
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 05:00:00",
+        "Fecha": "2026-10-24 10:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     }
