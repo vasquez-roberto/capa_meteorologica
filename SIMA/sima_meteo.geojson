@@ -25,7 +25,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -47,7 +47,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -69,7 +69,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -91,7 +91,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -113,7 +113,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -135,7 +135,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -157,7 +157,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -179,7 +179,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -201,7 +201,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -223,7 +223,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -245,7 +245,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -267,7 +267,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -284,12 +284,12 @@
         "Estacion": "SUR",
         "Clave": "S",
         "Municipio": "Monterrey",
-        "PM10 (ug/m3)": 25.0,
-        "PM2.5 (ug/m3)": 2.0,
+        "PM10 (ug/m3)": "ND",
+        "PM2.5 (ug/m3)": "ND",
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -311,7 +311,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -333,7 +333,7 @@
         "Temperatura (C)": "ND",
         "Humedad Relativa (%)": "ND",
         "Radiacion Solar (W/m2)": "ND",
-        "Fecha": "2026-10-24 22:00:00",
+        "Fecha": "2026-10-25 00:00:00",
         "Red": "Red SIMA (Oficial)"
       }
     }
