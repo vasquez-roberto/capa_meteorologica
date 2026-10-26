@@ -1,0 +1,6 @@
+﻿timestamp,variable,metodo,rmse_cv,skill,n_estaciones
+2026-10-26 14:00:00,PM10,Media,8.476,0.0,15
+2026-10-26 14:00:00,PM25,Media,2.56,0.0,15
+2026-10-26 14:00:00,Temperatura,Kriging exponential,11.43,0.0,15
+2026-10-26 14:00:00,Humedad,TPS suav=0.0,22.245,0.172,15
+2026-10-26 14:00:00,Radiacion,Kriging linear,0.158,0.071,15

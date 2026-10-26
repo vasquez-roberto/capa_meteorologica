@@ -2,9 +2,20 @@
 Captura de lecturas horarias de la Red SIMA (Monterrey, N.L.)
 PM10, PM2.5, Temperatura, Humedad Relativa y Radiación Solar.
 
+CORRECCIÓN IMPORTANTE (v2)
+--------------------------
+El servidor del SIMA "recuerda" la estación en la SESIÓN (cookie): al abrir
+ReporteDiariosimaIcars_L3.php?estacion1=X queda fijada la estación X, y los
+endpoints api_* responden con esa estación. Por eso, para CADA estación:
+  1) se crea una sesión nueva (cookies limpias)
+  2) se abre primero la página de la estación (calentamiento)
+  3) y solo entonces se consultan los endpoints
+Si se reutiliza una sesión sin ese paso, las 15 estaciones regresan los mismos
+datos (era el bug de la versión anterior).
+
 Uso:
-    python sima_captura.py            # captura normal
-    python sima_captura.py --debug    # muestra endpoints descubiertos y JSON crudo
+    python sima_captura.py
+    python sima_captura.py --debug   # imprime JSON crudo y endpoints candidatos
 """
 import json
 import re
@@ -28,9 +39,9 @@ DEBUG = "--debug" in sys.argv
 
 BASE = "https://aire.nl.gob.mx/SIMA2017reportes/"
 URL_REPORTE = BASE + "ReporteDiariosimaIcars_L3.php"
+URL_METEO_PAGINA = BASE + "ReporteDiarioSimaM.php"
 URL_CONC = BASE + "api_conc_correcto.php"
 
-# Candidatos por si el descubrimiento automático no encuentra nada
 CANDIDATOS_METEO = [
     "api_meteo_correcto.php",
     "api_meteo.php",
@@ -48,8 +59,7 @@ HEADERS = {
     "Accept-Language": "es-MX,es;q=0.9,en;q=0.8",
 }
 
-# OJO: verifica en la web del SIMA el valor exacto de 'param' de San Pedro.
-# "[SAN Pedro]" casi seguro es incorrecto; prueba "SANPEDRO" / "SAN PEDRO".
+# 'param' = valor exacto que usa el SIMA en la URL (tomado de tu script original)
 ESTACIONES = [
     ("CENTRO", "CENTRO", "Monterrey", 25.6760139, -100.338553, "CE"),
     ("SURESTE", "SURESTE", "Guadalupe", 25.6654972, -100.243653, "SE"),
@@ -60,7 +70,7 @@ ESTACIONES = [
     ("NORTE", "NORTE", "Escobedo", 25.7988361, -100.327164, "N"),
     ("NORESTE2", "NORESTE 2", "Apodaca", 25.777475, -100.1882, "NE2"),
     ("SURESTE2", "SURESTE 2", "Juárez", 25.646126, -100.095616, "SE2"),
-    ("SANPEDRO", "SUROESTE 2", "San Pedro", 25.665275, -100.412853, "SO2"),
+    ("[SAN Pedro]", "SUROESTE 2", "San Pedro", 25.665275, -100.412853, "SO2"),
     ("SURESTE3", "SURESTE 3", "Cadereyta", 25.6008639, -99.9953028, "SE3"),
     ("NORTE2", "NORTE 2", "San Nicolás", 25.7297587, -100.310019, "N2"),
     ("SUR", "SUR", "Monterrey", 25.6169806, -100.273936, "S"),
@@ -78,16 +88,19 @@ def a_num(val):
         return None
 
 
-def crear_sesion():
+def abrir_sesion(param):
+    """Sesión NUEVA con la estación 'param' fijada en el servidor."""
     s = requests.Session()
     retry = Retry(total=3, backoff_factor=1.5, status_forcelist=[500, 502, 503, 504])
     s.mount("https://", HTTPAdapter(max_retries=retry))
     s.headers.update(HEADERS)
+    # Calentamiento: el servidor guarda la estación en la sesión
+    s.get(URL_REPORTE, params={"estacion1": param}, timeout=15)
+    s.get(URL_METEO_PAGINA, params={"estacion1": param}, timeout=15)
     return s
 
 
 def _json_lista(resp):
-    """Devuelve una lista de dicts si la respuesta es JSON válido, si no None."""
     if resp.status_code != 200:
         return None
     try:
@@ -103,11 +116,19 @@ def _json_lista(resp):
 
 
 def clasificar_meteo(item):
-    """Clasifica un registro como temp / rh / rs según su nombre."""
+    """Clasifica por UNIDAD primero (más fiable) y luego por nombre."""
     p = str(item.get("Parameter", "")).strip().upper()
     largo = str(item.get("ParameterLargo", "")).strip().upper()
+    uni = str(item.get("Unidad", "")).strip().upper().replace(" ", "")
     texto = f"{p} {largo}"
-    if p in ("TEMP", "TOUT", "T", "AMB_TEMP") or "TEMPERATURA" in texto:
+
+    if "W/M" in uni:
+        return "rs"
+    if uni in ("%", "%HR", "%RH"):
+        return "rh"
+    if uni in ("°C", "ºC", "C", "DEGC", "GRADOSC", "°F") or "TEMPERATURA" in texto:
+        return "temp"
+    if p in ("TEMP", "TOUT", "T", "AMB_TEMP"):
         return "temp"
     if p in ("RH", "HR", "HUM") or "HUMEDAD" in texto:
         return "rh"
@@ -116,13 +137,14 @@ def clasificar_meteo(item):
     return None
 
 
-def descubrir_endpoint_meteo(session):
-    """Busca el endpoint JSON de meteorología leyendo la página y sus scripts."""
+def descubrir_endpoint_meteo():
+    """Busca el endpoint JSON de meteorología (con sesión calentada)."""
+    s = abrir_sesion("SURESTE")
+
     if CACHE_ENDPOINT.exists():
         try:
             url = json.loads(CACHE_ENDPOINT.read_text())["url"]
-            r = session.get(url, params={"estacion1": "SURESTE"}, timeout=15)
-            lista = _json_lista(r)
+            lista = _json_lista(s.get(url, params={"estacion1": "SURESTE"}, timeout=15))
             if lista and any(clasificar_meteo(i) for i in lista):
                 return url
         except Exception:
@@ -130,19 +152,19 @@ def descubrir_endpoint_meteo(session):
 
     candidatos = []
     try:
-        html = session.get(URL_REPORTE, params={"estacion1": "SURESTE"}, timeout=15).text
+        html = s.get(URL_REPORTE, params={"estacion1": "SURESTE"}, timeout=15).text
         fuentes = [html]
         for src in re.findall(r'<script[^>]+src=["\']([^"\']+)["\']', html, re.I):
             if "jquery" in src.lower() or "bootstrap" in src.lower():
                 continue
             try:
-                fuentes.append(session.get(urljoin(URL_REPORTE, src), timeout=15).text)
+                fuentes.append(s.get(urljoin(URL_REPORTE, src), timeout=15).text)
             except requests.RequestException:
                 pass
         for txt in fuentes:
             for m in re.findall(r'["\']([^"\'\s]*\.php[^"\'\s]*)["\']', txt):
                 ruta = m.split("?")[0]
-                if "api" in ruta.lower() or "meteo" in ruta.lower() or "met" in ruta.lower():
+                if any(k in ruta.lower() for k in ("api", "meteo", "met")):
                     candidatos.append(urljoin(URL_REPORTE, ruta))
     except requests.RequestException as e:
         print(f"Aviso: no se pudo leer la página del reporte: {e}")
@@ -158,7 +180,7 @@ def descubrir_endpoint_meteo(session):
 
     for url in vistos:
         try:
-            r = session.get(url, params={"estacion1": "SURESTE"}, timeout=15)
+            r = s.get(url, params={"estacion1": "SURESTE"}, timeout=15)
         except requests.RequestException:
             continue
         lista = _json_lista(r)
@@ -172,7 +194,10 @@ def descubrir_endpoint_meteo(session):
 def leer_conc(session, param):
     pm10 = pm25 = fecha = None
     r = session.get(URL_CONC, params={"estacion1": param}, timeout=15)
-    for item in _json_lista(r) or []:
+    lista = _json_lista(r) or []
+    if DEBUG:
+        print(f"[{param}] conc crudo:", json.dumps(lista, ensure_ascii=False)[:600])
+    for item in lista:
         p = str(item.get("Parameter", "")).strip().upper()
         val = a_num(item.get("HrAveData"))
         if p.startswith("PM10"):
@@ -191,24 +216,22 @@ def leer_meteo(session, url, param):
     r = session.get(url, params={"estacion1": param}, timeout=15)
     lista = _json_lista(r) or []
     if DEBUG:
-        print(f"[{param}] meteo crudo:", json.dumps(lista, ensure_ascii=False)[:500])
+        print(f"[{param}] meteo crudo:", json.dumps(lista, ensure_ascii=False)[:800])
     for item in lista:
         clave = clasificar_meteo(item)
         if clave and out[clave] is None:
-            val = item.get("HrAveData", item.get("Value", item.get("Valor")))
-            out[clave] = a_num(val)
+            out[clave] = a_num(item.get("HrAveData", item.get("Value", item.get("Valor"))))
             fecha = fecha or item.get("Date")
     return out, fecha
 
 
 def main():
-    session = crear_sesion()
-    url_meteo = descubrir_endpoint_meteo(session)
+    url_meteo = descubrir_endpoint_meteo()
     if not url_meteo:
         print(
             "ADVERTENCIA: no se encontró el endpoint de meteorología.\n"
-            "Abre la página del reporte en Chrome > F12 > Network > Fetch/XHR, "
-            "recarga y copia la URL que devuelve temperatura; pégala en CANDIDATOS_METEO."
+            "Chrome > F12 > Network > Fetch/XHR en la página del reporte; copia la URL "
+            "que devuelve temperatura y agrégala a CANDIDATOS_METEO."
         )
 
     registros = []
@@ -217,31 +240,39 @@ def main():
         met = {"temp": None, "rh": None, "rs": None}
         fecha = None
         try:
-            pm10, pm25, fecha = leer_conc(session, param)
-            met, f2 = leer_meteo(session, url_meteo, param)
+            s = abrir_sesion(param)               # sesión limpia POR ESTACIÓN
+            pm10, pm25, fecha = leer_conc(s, param)
+            met, f2 = leer_meteo(s, url_meteo, param)
             fecha = fecha or f2
         except Exception as e:
             print(f"Error en {zona}: {e}. Continuando...")
 
         registros.append({
             "timestamp": fecha or pd.Timestamp.now().strftime("%Y-%m-%d %H:00:00"),
-            "Estacion": zona,
-            "Clave": clave,
-            "Municipio": muni,
-            "PM10_ugm3": pm10,
-            "PM25_ugm3": pm25,
-            "Temperatura_C": met["temp"],
-            "Humedad_pct": met["rh"],
+            "Estacion": zona, "Clave": clave, "Municipio": muni,
+            "PM10_ugm3": pm10, "PM25_ugm3": pm25,
+            "Temperatura_C": met["temp"], "Humedad_pct": met["rh"],
             "RadiacionSolar_Wm2": met["rs"],
-            "lat": lat,
-            "lon": lon,
+            "lat": lat, "lon": lon,
         })
         time.sleep(0.5)
 
     df = pd.DataFrame(registros)
+
+    # ---------------- VALIDACIÓN: ¿todas las estaciones son idénticas? -------
+    huellas = df[["PM10_ugm3", "PM25_ugm3", "Temperatura_C",
+                  "Humedad_pct", "RadiacionSolar_Wm2"]].dropna(how="all").drop_duplicates()
+    if len(df) > 3 and len(huellas) <= 1:
+        print(
+            "\nERROR: las 15 estaciones devolvieron exactamente los mismos valores.\n"
+            "El servidor no está respetando la estación solicitada. NO se escribieron "
+            "archivos para no contaminar el histórico.\n"
+            "Ejecuta con --debug y revisa si el JSON crudo cambia entre estaciones."
+        )
+        sys.exit(1)
+
     df.to_csv(CSV_ACTUAL, index=False, encoding="utf-8-sig", na_rep="ND")
 
-    # Histórico sin duplicar (timestamp + estación)
     if CSV_HISTORICO.exists():
         hist = pd.read_csv(CSV_HISTORICO, encoding="utf-8-sig")
         hist = pd.concat([hist, df.fillna("ND")], ignore_index=True)
@@ -250,7 +281,6 @@ def main():
         hist = df.fillna("ND")
     hist.to_csv(CSV_HISTORICO, index=False, encoding="utf-8-sig")
 
-    # GeoJSON (null en lugar de "ND" para que los SIG lo lean como numérico)
     def v(x):
         return None if pd.isna(x) else float(x)
 
@@ -274,8 +304,8 @@ def main():
             "features": features,
         }, f, ensure_ascii=False, indent=2)
 
-    ok_met = df["Temperatura_C"].notna().sum()
-    print(f"Listo: {len(df)} estaciones | con meteorología: {ok_met}")
+    print(f"Listo: {len(df)} estaciones | con temperatura: {df['Temperatura_C'].notna().sum()}"
+          f" | valores distintos: {len(huellas)}")
 
 
 if __name__ == "__main__":
