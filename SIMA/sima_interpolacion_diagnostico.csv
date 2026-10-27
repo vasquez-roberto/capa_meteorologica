@@ -14,3 +14,8 @@
 2026-10-27 14:00:00,Temperatura,offset: sin offset | residuo: TPS suav=1,0.613,0.576,12
 2026-10-27 14:00:00,Humedad,offset: sin offset | residuo: IDW p=2,3.861,0.071,10
 2026-10-27 14:00:00,Radiacion,offset: sin offset | residuo: Kriging exponential,125.361,-0.099,11
+2026-10-27 17:00:00,PM10,offset: sin offset | residuo: IDW p=2,10.435,-0.233,13
+2026-10-27 17:00:00,PM25,offset: sin offset | residuo: Kriging exponential,2.64,-0.105,12
+2026-10-27 17:00:00,Temperatura,offset: sin offset | residuo: Kriging exponential,0.664,0.562,11
+2026-10-27 17:00:00,Humedad,offset: sin offset | residuo: Kriging exponential,3.609,0.182,9
+2026-10-27 17:00:00,Radiacion,offset: sin offset | residuo: Kriging exponential,37.252,0.03,12

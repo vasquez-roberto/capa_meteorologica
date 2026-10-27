@@ -1,63 +1,63 @@
 ﻿Clave,Estacion,offset,n_horas,estado,variable
-CE,CENTRO,0.1292117314800061,3,excluida: solo 3 horas válidas,PM10
-N,NORTE,0.15906469462968742,3,excluida: solo 3 horas válidas,PM10
-N2,NORTE 2,0.2436220826577502,3,excluida: solo 3 horas válidas,PM10
-NE,NORESTE,-0.8015152172817266,3,excluida: solo 3 horas válidas,PM10
-NE2,NORESTE 2,0.09309042306601167,3,excluida: solo 3 horas válidas,PM10
-NE3,ESTE,-0.8383291904044432,3,excluida: solo 3 horas válidas,PM10
-NO,NOROESTE,-0.14842000511827358,3,excluida: solo 3 horas válidas,PM10
-NO2,NOROESTE 2,0.02666824708216131,3,excluida: solo 3 horas válidas,PM10
+CE,CENTRO,0.12798171855957508,4,excluida: solo 4 horas válidas,PM10
+N,NORTE,0.11851311804969966,4,excluida: solo 4 horas válidas,PM10
+N2,NORTE 2,0.21297181972585255,4,excluida: solo 4 horas válidas,PM10
+NE,NORESTE,-0.6012949885442991,4,excluida: solo 4 horas válidas,PM10
+NE2,NORESTE 2,0.3514279973434531,4,excluida: solo 4 horas válidas,PM10
+NE3,ESTE,-0.7861491827423217,4,excluida: solo 4 horas válidas,PM10
+NO,NOROESTE,-0.16138669613152556,4,excluida: solo 4 horas válidas,PM10
+NO2,NOROESTE 2,0.06999846619458228,4,excluida: solo 4 horas válidas,PM10
 NO3,NOROESTE 3,0.017094433359300165,3,excluida: solo 3 horas válidas,PM10
 S,SUR,-0.07145896398214502,3,excluida: solo 3 horas válidas,PM10
-SE,SURESTE,0.3023063222383593,3,excluida: solo 3 horas válidas,PM10
-SE2,SURESTE 2,0.0,3,excluida: solo 3 horas válidas,PM10
-SE3,SURESTE 3,-0.23180161405732447,3,excluida: solo 3 horas válidas,PM10
-SO,SUROESTE,-0.109199291964992,3,excluida: solo 3 horas válidas,PM10
-SO2,SUROESTE 2,-0.0246926125903717,3,excluida: solo 3 horas válidas,PM10
-CE,CENTRO,0.34147570036923813,3,excluida: solo 3 horas válidas,PM25
+SE,SURESTE,0.2992860691907657,4,excluida: solo 4 horas válidas,PM10
+SE2,SURESTE 2,0.03898077073485595,4,excluida: solo 4 horas válidas,PM10
+SE3,SURESTE 3,-0.2244330596475761,4,excluida: solo 4 horas válidas,PM10
+SO,SUROESTE,-0.11180482157136806,4,excluida: solo 4 horas válidas,PM10
+SO2,SUROESTE 2,-0.1239180819522907,4,excluida: solo 4 horas válidas,PM10
+CE,CENTRO,0.31426628871355033,4,excluida: solo 4 horas válidas,PM25
 N,NORTE,0.02302196925070321,3,excluida: solo 3 horas válidas,PM25
-N2,NORTE 2,0.02302196925070321,3,excluida: solo 3 horas válidas,PM25
-NE,NORESTE,-0.41551544396166573,3,excluida: solo 3 horas válidas,PM25
-NE2,NORESTE 2,0.5596157879354227,3,excluida: solo 3 horas válidas,PM25
-NE3,ESTE,-0.9578072837610228,3,excluida: solo 3 horas válidas,PM25
-NO,NOROESTE,0.0,3,excluida: solo 3 horas válidas,PM25
-NO2,NOROESTE 2,-0.10046400019917234,3,excluida: solo 3 horas válidas,PM25
+N2,NORTE 2,0.011510984625351606,4,excluida: solo 4 horas válidas,PM25
+NE,NORESTE,-0.2383964446313782,4,excluida: solo 4 horas válidas,PM25
+NE2,NORESTE 2,0.6211450431188184,4,excluida: solo 4 horas válidas,PM25
+NE3,ESTE,-0.766808878808213,4,excluida: solo 4 horas válidas,PM25
+NO,NOROESTE,0.07183889878476346,4,excluida: solo 4 horas válidas,PM25
+NO2,NOROESTE 2,-0.13149146484847374,4,excluida: solo 4 horas válidas,PM25
 NO3,NOROESTE 3,-0.04151655188686787,3,excluida: solo 3 horas válidas,PM25
 S,SUR,0.5510189870040585,3,excluida: solo 3 horas válidas,PM25
-SE,SURESTE,0.6300742515839843,3,excluida: solo 3 horas válidas,PM25
-SE2,SURESTE 2,-0.4422790812308808,3,excluida: solo 3 horas válidas,PM25
-SE3,SURESTE 3,-0.4054651081081646,3,excluida: solo 3 horas válidas,PM25
-SO,SUROESTE,0.14080500490708703,3,excluida: solo 3 horas válidas,PM25
-SO2,SUROESTE 2,0.021614367275410107,2,excluida: solo 2 horas válidas,PM25
-CE,CENTRO,-0.9700000000000024,3,excluida: solo 3 horas válidas,Temperatura
-N,NORTE,1.0599999999999987,3,excluida: sensor meteorológico descalibrado (sesgo en otra variable),Temperatura
-N2,NORTE 2,0.5749999999999993,3,excluida: solo 3 horas válidas,Temperatura
-NE2,NORESTE 2,0.8299999999999983,3,excluida: solo 3 horas válidas,Temperatura
-NE3,ESTE,1.1199999999999974,3,excluida: solo 3 horas válidas,Temperatura
-NO2,NOROESTE 2,-1.0549999999999997,3,excluida: solo 3 horas válidas,Temperatura
+SE,SURESTE,0.5480520662428006,4,excluida: solo 4 horas válidas,PM25
+SE2,SURESTE 2,-0.4238720946695227,4,excluida: solo 4 horas válidas,PM25
+SE3,SURESTE 3,-0.2211395406154404,4,excluida: solo 4 horas válidas,PM25
+SO,SUROESTE,0.07040250245354351,4,excluida: solo 4 horas válidas,PM25
+SO2,SUROESTE 2,-0.03681397312271617,3,excluida: solo 3 horas válidas,PM25
+CE,CENTRO,-1.1675000000000022,4,excluida: solo 4 horas válidas,Temperatura
+N,NORTE,0.9499999999999993,4,excluida: sensor meteorológico descalibrado (sesgo en otra variable),Temperatura
+N2,NORTE 2,0.28749999999999964,4,excluida: solo 4 horas válidas,Temperatura
+NE2,NORESTE 2,0.7849999999999984,4,excluida: solo 4 horas válidas,Temperatura
+NE3,ESTE,1.0974999999999984,4,excluida: solo 4 horas válidas,Temperatura
+NO2,NOROESTE 2,-0.9625000000000004,4,excluida: solo 4 horas válidas,Temperatura
 S,SUR,-0.6499999999999986,2,excluida: solo 2 horas válidas,Temperatura
-SE,SURESTE,-8.463000000000001,3,excluida: sesgo imposible (-8.46) = sensor descalibrado,Temperatura
-SE2,SURESTE 2,0.4349999999999987,3,excluida: solo 3 horas válidas,Temperatura
-SE3,SURESTE 3,0.3049999999999997,3,excluida: solo 3 horas válidas,Temperatura
-SO,SUROESTE,-1.6750000000000007,3,excluida: solo 3 horas válidas,Temperatura
-SO2,SUROESTE 2,-0.5449999999999982,3,excluida: solo 3 horas válidas,Temperatura
-NE,NORESTE,,0,excluida: sin horas válidas,Temperatura
-NO3,NOROESTE 3,,0,excluida: sin horas válidas,Temperatura
+SE,SURESTE,-4.625,4,excluida: solo 4 horas válidas,Temperatura
+SE2,SURESTE 2,0.5274999999999999,4,excluida: solo 4 horas válidas,Temperatura
+SE3,SURESTE 3,0.6374999999999993,4,excluida: solo 4 horas válidas,Temperatura
+SO,SUROESTE,-1.9300000000000015,4,excluida: solo 4 horas válidas,Temperatura
+SO2,SUROESTE 2,-0.8200000000000003,4,excluida: solo 4 horas válidas,Temperatura
 NO,NOROESTE,,0,excluida: sin horas válidas,Temperatura
-CE,CENTRO,0.5,3,excluida: solo 3 horas válidas,Humedad
-N2,NORTE 2,-3.0,3,excluida: solo 3 horas válidas,Humedad
-NE,NORESTE,5.5,3,excluida: solo 3 horas válidas,Humedad
-NE2,NORESTE 2,-3.0,3,excluida: solo 3 horas válidas,Humedad
-NE3,ESTE,0.0,3,excluida: solo 3 horas válidas,Humedad
-NO2,NOROESTE 2,3.833500000000001,3,excluida: solo 3 horas válidas,Humedad
+NO3,NOROESTE 3,,0,excluida: sin horas válidas,Temperatura
+NE,NORESTE,,0,excluida: sin horas válidas,Temperatura
+CE,CENTRO,0.6667500000000004,4,excluida: solo 4 horas válidas,Humedad
+N2,NORTE 2,-3.25,4,excluida: solo 4 horas válidas,Humedad
+NE,NORESTE,3.75,4,excluida: solo 4 horas válidas,Humedad
+NE2,NORESTE 2,-3.5,4,excluida: solo 4 horas válidas,Humedad
+NE3,ESTE,0.25,4,excluida: solo 4 horas válidas,Humedad
+NO2,NOROESTE 2,3.4167500000000004,4,excluida: solo 4 horas válidas,Humedad
 S,SUR,0.6667500000000004,2,excluida: solo 2 horas válidas,Humedad
-SE,SURESTE,-17.167,3,excluida: sesgo imposible (-17.17) = sensor descalibrado,Humedad
-SE3,SURESTE 3,5.5,3,excluida: solo 3 horas válidas,Humedad
+SE,SURESTE,-8.500250000000001,4,excluida: solo 4 horas válidas,Humedad
+SE3,SURESTE 3,2.75,4,excluida: solo 4 horas válidas,Humedad
 SO,SUROESTE,8.5,1,excluida: solo 1 horas válidas,Humedad
-SO2,SUROESTE 2,-4.0,3,excluida: solo 3 horas válidas,Humedad
+SO2,SUROESTE 2,-4.08325,4,excluida: solo 4 horas válidas,Humedad
+NO,NOROESTE,,0,excluida: sin horas válidas,Humedad
 N,NORTE,,0,excluida: sensor meteorológico descalibrado (sesgo en otra variable),Humedad
 NO3,NOROESTE 3,,0,excluida: sin horas válidas,Humedad
-NO,NOROESTE,,0,excluida: sin horas válidas,Humedad
 SE2,SURESTE 2,,0,excluida: sin horas válidas,Humedad
 CE,CENTRO,0.05253733352788181,3,excluida: solo 3 horas válidas,Radiacion
 N,NORTE,-1.9031363330720268,3,excluida: sesgo imposible (-1.90) = sensor descalibrado,Radiacion
@@ -67,10 +67,10 @@ NE2,NORESTE 2,0.21643731003412636,3,excluida: solo 3 horas válidas,Radiacion
 NE3,ESTE,0.4498796135489114,3,excluida: solo 3 horas válidas,Radiacion
 NO,NOROESTE,0.05889151782819191,3,excluida: solo 3 horas válidas,Radiacion
 S,SUR,-0.43972340755262485,2,excluida: solo 2 horas válidas,Radiacion
-SE,SURESTE,-0.2564690788695705,3,excluida: sensor meteorológico descalibrado (sesgo en otra variable),Radiacion
+SE,SURESTE,-0.2564690788695705,3,excluida: solo 3 horas válidas,Radiacion
 SE2,SURESTE 2,-0.19525834782467388,3,excluida: solo 3 horas válidas,Radiacion
 SE3,SURESTE 3,0.30929766292772154,3,excluida: solo 3 horas válidas,Radiacion
 SO,SUROESTE,0.0,3,excluida: solo 3 horas válidas,Radiacion
 SO2,SUROESTE 2,0.0,3,excluida: solo 3 horas válidas,Radiacion
-NO2,NOROESTE 2,,0,excluida: sin horas válidas,Radiacion
 NO3,NOROESTE 3,,0,excluida: sin horas válidas,Radiacion
+NO2,NOROESTE 2,,0,excluida: sin horas válidas,Radiacion
