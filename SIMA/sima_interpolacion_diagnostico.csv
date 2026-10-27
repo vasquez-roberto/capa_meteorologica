@@ -1,6 +1,6 @@
 ﻿timestamp,variable,metodo,rmse_cv,skill,n_estaciones
-2026-10-27 10:00:00,PM10,IDW p=3.0,8.568,0.067,15
+2026-10-27 10:00:00,PM10,Media,9.185,0.0,15
 2026-10-27 10:00:00,PM25,Kriging exponential,3.494,0.42,15
-2026-10-27 10:00:00,Temperatura,Media,2677.108,0.0,15
-2026-10-27 10:00:00,Humedad,TPS suav=0.0,2587.707,0.003,15
-2026-10-27 10:00:00,Radiacion,IDW p=1.5,2581.788,0.0,15
+2026-10-27 10:00:00,Temperatura,Media,1.46,0.0,10
+2026-10-27 10:00:00,Humedad,Media,10.278,0.0,10
+2026-10-27 10:00:00,Radiacion,Media,145.478,0.0,12
