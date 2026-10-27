@@ -20,21 +20,12 @@
         "Estacion": "CENTRO",
         "Clave": "CE",
         "Municipio": "Monterrey",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 31.0,
-        "PM2.5 (ug/m3)": null,
-        "Temperatura (C)": 19.33,
-        "Humedad Relativa (%)": 84.0,
-        "Radiacion Solar (W/m2)": 0.001,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 52.0,
         "PM2.5 (ug/m3)": 17.9,
         "Temperatura (C)": 23.0,
         "Humedad Relativa (%)": 66.0,
         "Radiacion Solar (W/m2)": 0.28,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -51,21 +42,12 @@
         "Estacion": "SURESTE",
         "Clave": "SE",
         "Municipio": "Guadalupe",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 23.532,
-        "PM2.5 (ug/m3)": 6.191,
-        "Temperatura (C)": 13.18,
-        "Humedad Relativa (%)": 55.667,
-        "Radiacion Solar (W/m2)": 0.0,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 52.415,
         "PM2.5 (ug/m3)": 20.914,
         "Temperatura (C)": 14.107,
         "Humedad Relativa (%)": 52.667,
         "Radiacion Solar (W/m2)": 0.087,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -82,21 +64,12 @@
         "Estacion": "NORESTE",
         "Clave": "NE",
         "Municipio": "San Nicolás",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 20.7,
-        "PM2.5 (ug/m3)": 9.0,
-        "Temperatura (C)": 0.0,
-        "Humedad Relativa (%)": 91.0,
-        "Radiacion Solar (W/m2)": 0.017,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 32.95,
         "PM2.5 (ug/m3)": 15.25,
         "Temperatura (C)": 0.0,
         "Humedad Relativa (%)": 83.0,
         "Radiacion Solar (W/m2)": 0.292,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -113,21 +86,12 @@
         "Estacion": "NOROESTE",
         "Clave": "NO",
         "Municipio": "Monterrey",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 33.0,
-        "PM2.5 (ug/m3)": 18.0,
-        "Temperatura (C)": 0.0,
-        "Humedad Relativa (%)": 0.0,
-        "Radiacion Solar (W/m2)": 0.001,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 36.0,
         "PM2.5 (ug/m3)": 25.0,
         "Temperatura (C)": 0.0,
         "Humedad Relativa (%)": 0.0,
         "Radiacion Solar (W/m2)": 0.403,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -144,21 +108,12 @@
         "Estacion": "SUROESTE",
         "Clave": "SO",
         "Municipio": "Santa Catarina",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 32.0,
-        "PM2.5 (ug/m3)": null,
-        "Temperatura (C)": 19.36,
-        "Humedad Relativa (%)": 83.0,
-        "Radiacion Solar (W/m2)": 0.0,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 35.5,
         "PM2.5 (ug/m3)": 13.05,
         "Temperatura (C)": 20.395,
         "Humedad Relativa (%)": 82.5,
         "Radiacion Solar (W/m2)": 0.093,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -175,21 +130,12 @@
         "Estacion": "NOROESTE 2",
         "Clave": "NO2",
         "Municipio": "García",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 33.0,
-        "PM2.5 (ug/m3)": null,
-        "Temperatura (C)": 19.26,
-        "Humedad Relativa (%)": 84.0,
-        "Radiacion Solar (W/m2)": 0.0,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 41.0,
         "PM2.5 (ug/m3)": 11.9,
         "Temperatura (C)": 21.94,
         "Humedad Relativa (%)": 80.0,
         "Radiacion Solar (W/m2)": 0.0,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -206,21 +152,12 @@
         "Estacion": "NORTE",
         "Clave": "N",
         "Municipio": "Escobedo",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 34.0,
-        "PM2.5 (ug/m3)": 12.0,
-        "Temperatura (C)": 19.93,
-        "Humedad Relativa (%)": 0.0,
-        "Radiacion Solar (W/m2)": 0.0,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 46.0,
         "PM2.5 (ug/m3)": 17.0,
         "Temperatura (C)": 24.25,
         "Humedad Relativa (%)": 0.0,
         "Radiacion Solar (W/m2)": 0.052,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -237,21 +174,12 @@
         "Estacion": "NORESTE 2",
         "Clave": "NE2",
         "Municipio": "Apodaca",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 46.0,
-        "PM2.5 (ug/m3)": 6.0,
-        "Temperatura (C)": 20.08,
-        "Humedad Relativa (%)": 81.0,
-        "Radiacion Solar (W/m2)": 0.001,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 39.0,
         "PM2.5 (ug/m3)": 10.0,
         "Temperatura (C)": 24.7,
         "Humedad Relativa (%)": 64.0,
         "Radiacion Solar (W/m2)": 0.382,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -268,21 +196,12 @@
         "Estacion": "SURESTE 2",
         "Clave": "SE2",
         "Municipio": "Juárez",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 18.0,
-        "PM2.5 (ug/m3)": 5.0,
-        "Temperatura (C)": 19.87,
-        "Humedad Relativa (%)": 0.0,
-        "Radiacion Solar (W/m2)": 0.002,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 38.0,
         "PM2.5 (ug/m3)": 6.0,
         "Temperatura (C)": 23.44,
         "Humedad Relativa (%)": 0.0,
         "Radiacion Solar (W/m2)": 0.138,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -299,21 +218,12 @@
         "Estacion": "SUROESTE 2",
         "Clave": "SO2",
         "Municipio": "San Pedro",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 36.0,
-        "PM2.5 (ug/m3)": 14.0,
-        "Temperatura (C)": 19.32,
-        "Humedad Relativa (%)": 82.0,
-        "Radiacion Solar (W/m2)": 0.0,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 34.0,
         "PM2.5 (ug/m3)": 13.0,
         "Temperatura (C)": 23.82,
         "Humedad Relativa (%)": 65.0,
         "Radiacion Solar (W/m2)": 0.398,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -330,21 +240,12 @@
         "Estacion": "SURESTE 3",
         "Clave": "SE3",
         "Municipio": "Cadereyta",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 14.0,
-        "PM2.5 (ug/m3)": 3.0,
-        "Temperatura (C)": 19.49,
-        "Humedad Relativa (%)": 88.0,
-        "Radiacion Solar (W/m2)": 0.038,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 31.0,
         "PM2.5 (ug/m3)": 9.0,
         "Temperatura (C)": 23.5,
         "Humedad Relativa (%)": 76.0,
         "Radiacion Solar (W/m2)": 0.312,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -361,21 +262,12 @@
         "Estacion": "NORTE 2",
         "Clave": "N2",
         "Municipio": "San Nicolás",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 38.0,
-        "PM2.5 (ug/m3)": 19.0,
-        "Temperatura (C)": 20.12,
-        "Humedad Relativa (%)": 83.0,
-        "Radiacion Solar (W/m2)": 0.001,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 60.0,
         "PM2.5 (ug/m3)": 21.0,
         "Temperatura (C)": 24.45,
         "Humedad Relativa (%)": 67.0,
         "Radiacion Solar (W/m2)": 0.315,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -392,21 +284,12 @@
         "Estacion": "SUR",
         "Clave": "S",
         "Municipio": "Monterrey",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 25.199,
-        "PM2.5 (ug/m3)": 9.286,
-        "Temperatura (C)": 0.0,
-        "Humedad Relativa (%)": 0.0,
-        "Radiacion Solar (W/m2)": 0.0,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 54.415,
         "PM2.5 (ug/m3)": 20.624,
         "Temperatura (C)": 0.0,
         "Humedad Relativa (%)": 0.0,
         "Radiacion Solar (W/m2)": 0.0,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -423,21 +306,12 @@
         "Estacion": "ESTE",
         "Clave": "NE3",
         "Municipio": "Pesquería",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 21.9,
-        "PM2.5 (ug/m3)": 6.667,
-        "Temperatura (C)": null,
-        "Humedad Relativa (%)": null,
-        "Radiacion Solar (W/m2)": null,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 48.0,
         "PM2.5 (ug/m3)": 7.0,
         "Temperatura (C)": 24.9,
         "Humedad Relativa (%)": 67.0,
         "Radiacion Solar (W/m2)": 0.451,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     },
@@ -454,21 +328,12 @@
         "Estacion": "NOROESTE 3",
         "Clave": "NO3",
         "Municipio": "García",
-<<<<<<< Updated upstream
-        "PM10 (ug/m3)": 33.5,
-        "PM2.5 (ug/m3)": 15.0,
-        "Temperatura (C)": 0.0,
-        "Humedad Relativa (%)": 0.0,
-        "Radiacion Solar (W/m2)": 0.0,
-        "Fecha": "2026-10-27 07:00:00",
-=======
         "PM10 (ug/m3)": 41.0,
         "PM2.5 (ug/m3)": 21.0,
         "Temperatura (C)": -9999.0,
         "Humedad Relativa (%)": -9999.0,
         "Radiacion Solar (W/m2)": -9999.0,
         "Fecha": "2026-10-27 10:00:00",
->>>>>>> Stashed changes
         "Red": "Red SIMA (Oficial)"
       }
     }
