@@ -1,0 +1,76 @@
+﻿Clave,Estacion,offset,n_horas,estado,variable
+CE,CENTRO,0.4135623183407837,1,excluida: solo 1 horas válidas,PM10
+N,NORTE,0.256719846847814,1,excluida: solo 1 horas válidas,PM10
+N2,NORTE 2,0.3973017974690034,1,excluida: solo 1 horas válidas,PM10
+NE,NORESTE,-0.35667494393873245,1,excluida: solo 1 horas válidas,PM10
+NE2,NORESTE 2,0.09309042306601167,1,excluida: solo 1 horas válidas,PM10
+NE3,ESTE,-0.5355182363563622,1,excluida: solo 1 horas válidas,PM10
+NO,NOROESTE,0.0,1,excluida: solo 1 horas válidas,PM10
+NO2,NOROESTE 2,-0.0246926125903717,1,excluida: solo 1 horas válidas,PM10
+NO3,NOROESTE 3,0.13657553500575048,1,excluida: solo 1 horas válidas,PM10
+S,SUR,0.3606548185986922,1,excluida: solo 1 horas válidas,PM10
+SE,SURESTE,0.3023063222383593,1,excluida: solo 1 horas válidas,PM10
+SE2,SURESTE 2,-0.21706450523782772,1,excluida: solo 1 horas válidas,PM10
+SE3,SURESTE 3,-0.21706450523782772,1,excluida: solo 1 horas válidas,PM10
+SO,SUROESTE,-0.08923113372794278,1,excluida: solo 1 horas válidas,PM10
+SO2,SUROESTE 2,-0.0246926125903717,1,excluida: solo 1 horas válidas,PM10
+CE,CENTRO,0.6215692150008891,1,excluida: solo 1 horas válidas,PM25
+N,NORTE,0.31149272114549964,1,excluida: solo 1 horas válidas,PM25
+N2,NORTE 2,0.5693218304475995,1,excluida: solo 1 horas válidas,PM25
+NE,NORESTE,-0.061277445301090694,1,excluida: solo 1 horas válidas,PM25
+NE2,NORESTE 2,-0.03681397312271617,1,excluida: solo 1 horas válidas,PM25
+NE3,ESTE,-0.5758104738554033,1,excluida: solo 1 horas válidas,PM25
+NO,NOROESTE,0.5228018148127065,1,excluida: solo 1 horas válidas,PM25
+NO2,NOROESTE 2,-0.10046400019917234,1,excluida: solo 1 horas válidas,PM25
+NO3,NOROESTE 3,0.42271835625572374,1,excluida: solo 1 horas válidas,PM25
+S,SUR,0.5510189870040585,1,excluida: solo 1 horas válidas,PM25
+SE,SURESTE,0.4660298809016168,1,excluida: solo 1 horas válidas,PM25
+SE2,SURESTE 2,-0.4422790812308808,1,excluida: solo 1 horas válidas,PM25
+SE3,SURESTE 3,-0.03681397312271617,1,excluida: solo 1 horas válidas,PM25
+SO,SUROESTE,0.0,1,excluida: solo 1 horas válidas,PM25
+SO2,SUROESTE 2,-0.03681397312271617,1,excluida: solo 1 horas válidas,PM25
+CE,CENTRO,-0.9700000000000024,1,excluida: solo 1 horas válidas,Temperatura
+N,NORTE,1.0599999999999987,1,excluida: solo 1 horas válidas,Temperatura
+N2,NORTE 2,1.1099999999999994,1,excluida: solo 1 horas válidas,Temperatura
+NE2,NORESTE 2,0.8299999999999983,1,excluida: solo 1 horas válidas,Temperatura
+NE3,ESTE,1.1199999999999974,1,excluida: solo 1 horas válidas,Temperatura
+NO2,NOROESTE 2,-0.2900000000000027,1,excluida: solo 1 horas válidas,Temperatura
+SE,SURESTE,-8.463000000000001,1,excluida: solo 1 horas válidas,Temperatura
+SE2,SURESTE 2,-0.14000000000000057,1,excluida: solo 1 horas válidas,Temperatura
+SE3,SURESTE 3,0.23999999999999844,1,excluida: solo 1 horas válidas,Temperatura
+SO,SUROESTE,-1.4000000000000021,1,excluida: solo 1 horas válidas,Temperatura
+SO2,SUROESTE 2,0.0,1,excluida: solo 1 horas válidas,Temperatura
+NO,NOROESTE,,0,excluida: sin horas válidas,Temperatura
+NO3,NOROESTE 3,,0,excluida: sin horas válidas,Temperatura
+NE,NORESTE,,0,excluida: sin horas válidas,Temperatura
+S,SUR,,0,excluida: sin horas válidas,Temperatura
+CE,CENTRO,0.0,1,excluida: solo 1 horas válidas,Humedad
+N2,NORTE 2,-3.0,1,excluida: solo 1 horas válidas,Humedad
+NE,NORESTE,8.0,1,excluida: solo 1 horas válidas,Humedad
+NE2,NORESTE 2,-3.0,1,excluida: solo 1 horas válidas,Humedad
+NE3,ESTE,0.0,1,excluida: solo 1 horas válidas,Humedad
+NO2,NOROESTE 2,3.0,1,excluida: solo 1 horas válidas,Humedad
+SE,SURESTE,-19.667,1,excluida: solo 1 horas válidas,Humedad
+SE3,SURESTE 3,6.0,1,excluida: solo 1 horas válidas,Humedad
+SO,SUROESTE,8.5,1,excluida: solo 1 horas válidas,Humedad
+SO2,SUROESTE 2,-4.0,1,excluida: solo 1 horas válidas,Humedad
+NO,NOROESTE,,0,excluida: sin horas válidas,Humedad
+NO3,NOROESTE 3,,0,excluida: sin horas válidas,Humedad
+S,SUR,,0,excluida: sin horas válidas,Humedad
+N,NORTE,,0,excluida: sin horas válidas,Humedad
+SE2,SURESTE 2,,0,excluida: sin horas válidas,Humedad
+CE,CENTRO,0.35621686655177687,1,excluida: solo 1 horas válidas,Radiacion
+N,NORTE,-2.0493855734915316,1,excluida: solo 1 horas válidas,Radiacion
+N2,NORTE 2,-0.08242201523838588,1,excluida: solo 1 horas válidas,Radiacion
+NE,NORESTE,0.2360317158801486,1,excluida: solo 1 horas válidas,Radiacion
+NE2,NORESTE 2,0.2948722159030819,1,excluida: solo 1 horas válidas,Radiacion
+NE3,ESTE,0.32897782838959344,1,excluida: solo 1 horas válidas,Radiacion
+NO,NOROESTE,0.05889151782819191,1,excluida: solo 1 horas válidas,Radiacion
+SE,SURESTE,-0.6112661445070549,1,excluida: solo 1 horas válidas,Radiacion
+SE2,SURESTE 2,-0.22965225222107044,1,excluida: solo 1 horas válidas,Radiacion
+SE3,SURESTE 3,-0.05889151782819191,1,excluida: solo 1 horas válidas,Radiacion
+SO,SUROESTE,-0.6062283504770978,1,excluida: solo 1 horas válidas,Radiacion
+SO2,SUROESTE 2,0.17120455280089963,1,excluida: solo 1 horas válidas,Radiacion
+NO3,NOROESTE 3,,0,excluida: sin horas válidas,Radiacion
+NO2,NOROESTE 2,,0,excluida: sin horas válidas,Radiacion
+S,SUR,,0,excluida: sin horas válidas,Radiacion

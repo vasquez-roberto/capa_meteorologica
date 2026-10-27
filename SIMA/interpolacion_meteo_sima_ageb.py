@@ -1,59 +1,66 @@
 """
 =============================================================================
-INTERPOLACIÓN SIMA (15 ESTACIONES) -> AGEBs DEL INEGI   (v3, con QC integrado)
+INTERPOLACIÓN SIMA (15 ESTACIONES) -> AGEBs DEL INEGI   (v4, sin método Media)
 =============================================================================
 Variables: PM10, PM2.5, Temperatura, Humedad Relativa, Radiación Solar.
 
-QUÉ ESTABA PASANDO (por qué salían -650 °C y RMSE de 2677)
-----------------------------------------------------------
-El SIMA marca un sensor sin dato con el valor centinela -9999, y muchos
-sensores caídos reportan 0.0 exacto (temperatura 0.0, humedad 0.0, radiación
-0.0). Eso NO son mediciones. Cuando entraron al kriging:
-  - un solo -9999 arruina el variograma -> RMSE de miles
-  - los 0.0 de sensores caídos fingen "zonas de 0 °C / 0 % de humedad"
-  - la radiación venía en kW/m2 (0.0-0.7) mezclada con W/m2
-El método de interpolación NO era el problema; los DATOS de entrada sí.
+POR QUÉ UNA SOLA HORA NO BASTA
+------------------------------
+Con 10-15 estaciones y una sola hora de lecturas, el variograma/estructura
+espacial no es identificable: cualquier método vuelve a la media. Pero la red SÍ
+tiene variación espacial PERSISTENTE (zonas siempre más cálidas, más húmedas,
+más contaminadas). Esa señal se ve bien cuando se promedian MUCHAS horas.
+Este script la extrae del histórico (sima_meteo_historico.csv).
 
-QUÉ HACE ESTE SCRIPT (en orden)
+MODELO (en cada AGEB x, hora t)
 -------------------------------
-1. CONTROL DE CALIDAD por variable (cada sensor se evalúa por separado: una
-   estación puede tener PM bueno y temperatura caída):
-     a) -9999 y otros centinelas            -> faltante
-     b) Temperatura = 0.0 / Humedad = 0.0   -> faltante (sensor sin dato)
-     c) Fuera de rango físico               -> faltante
-     d) Radiación = 0.0 de día (la red mide > 50 W/m2) -> faltante
-     e) Copias exactas entre estaciones     -> faltante (el servidor devolvió
-        la misma estación dos veces; no se sabe cuál es la real)
-     f) Outlier espacial (T, HR, Rad): muy lejos de la mediana de la red en
-        esa hora (p. ej. 1.4 °C en una estación cuando las demás marcan 21 °C)
-   Radiación: se unifica y se convierte kW/m2 -> W/m2 si hace falta.
-   PM NO se filtra por outlier espacial: un foco local de partículas puede ser real.
+    valor(x,t) = base(t) + offset(x) + residuo(x,t)
 
-2. Para cada variable se usan SOLO las estaciones válidas y se compite entre
-   métodos con VALIDACIÓN CRUZADA leave-one-out (quita una estación, la
-   predice con las demás, compara):
-     - Kriging (exponential / spherical / linear)   <- preferido si empata
-     - Thin-plate spline (varios suavizados)
-     - IDW (varias potencias)
-     - Media de la red (línea base)
-   Si varios métodos quedan a menos de TOL_EMPATE del mejor error, gana el
-   Kriging exponencial (el variograma que mejor te funcionó). Si ninguno mejora
-   a la media por lo menos MIN_SKILL, se usa la media y se avisa.
+  base(t)     nivel general de la red esta hora (mediana robusta). Cambia con la
+              hora del día, el clima, la nubosidad.
+  offset(x)   diferencia PERSISTENTE de cada estación contra la red, medida con
+              el histórico (mediana de sus anomalías en todas las horas válidas).
+              Se interpola espacialmente a todos los AGEBs => mapa con variación.
+              Temperatura y humedad: diferencia (°C, puntos %).
+              PM y radiación: razón (se trabaja en logaritmo, nunca da negativos).
+  residuo     lo que esta hora tiene de distinto al patrón habitual; se
+              interpola solo si la validación cruzada demuestra que ayuda.
 
-3. Se estima SOLO donde hay estaciones válidas alrededor: por variable se usa el
-   casco convexo de SUS estaciones válidas + BUFFER_KM. Fuera de ahí el AGEB
-   queda en null (no se extrapola; mejor un hueco que un dato inventado).
+PASOS
+-----
+1. QC por hora (centinela -9999, ceros de sensores caídos, rangos, copias entre
+   estaciones, radiación 0.0 de día). Radiación se pasa a W/m2.
+2. Offsets por estación desde el histórico. Una estación queda FUERA del offset
+   si tiene < MIN_HORAS_OFFSET horas válidas o un sesgo imposible (|offset| >
+   límite físico): es un sensor descalibrado, no geografía (p. ej. una estación
+   que siempre marca 9 °C menos que sus vecinas).
+3. Se prueban combinaciones  offset-interpolador x residuo-interpolador:
+     interpoladores: IDW, thin-plate spline, Kriging exponencial / esférico
+     (el Kriging exponencial gana los empates, a <3% del mejor error).
+   Se evalúan con VALIDACIÓN CRUZADA ANIDADA leave-one-out: se quita una
+   estación y se predice su valor con las demás (offset y residuo incluidos).
+   NO existe el método "Media": siempre hay variación espacial. La media solo se
+   usa como línea base para calcular el SKILL (qué tanto mejora el modelo a un
+   mapa plano) y marcar la confianza.
+4. Se estima únicamente dentro del casco convexo de los 15 sensores (+BUFFER_KM).
+5. Cada AGEB lleva su Calidad (Alta/Media/Baja) según el skill de la variable y
+   la distancia a la estación válida más cercana. SKILL <= 0 => el modelo no
+   superó a un mapa plano: se publica con Calidad "Baja", no se oculta.
+
+Con solo ~10 estaciones válidas, el error de validación cruzada es optimista
+(se eligió la mejor entre varias combinaciones). Úsalo como orden de magnitud.
 
 COLUMNAS DE CADA GEOJSON (ArcGIS)
 ---------------------------------
-  <variable>   valor estimado           Error_CV     error típico (RMSE de CV)
-  Dist_Est_km  distancia a la estación válida más cercana
-  Calidad      Alta / Media / Baja (según skill del método y distancia)
-  Metodo, Skill, N_Estaciones, Fecha
+  <variable>, Error_CV (RMSE de CV), Dist_Est_km, Calidad, Metodo, Skill,
+  N_Estaciones, Fecha
+
+También escribe sima_offsets_estaciones.csv (offset, horas y motivo de exclusión
+por estación y variable) para que veas qué sensores no son confiables.
 
 Uso:
     python sima_interpolacion.py            # normal
-    python sima_interpolacion.py --ranking  # tabla de métodos por variable
+    python sima_interpolacion.py --ranking  # tabla de combinaciones por variable
 =============================================================================
 """
 import io
@@ -82,41 +89,59 @@ BASE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = BASE_DIR.parent
 
 CSV_LECTURAS = BASE_DIR / "sima_meteo_lecturas.csv"
-SHP_AGEB = ROOT_DIR / "shp" / "2025_1_19_A.shp"
+CSV_HIST_EST = BASE_DIR / "sima_meteo_historico.csv"       # histórico de ESTACIONES
+SHP_AGEB = ROOT_DIR / "shp" / "2025_1_19_A.shp"            # requiere .dbf y .prj
 
 CSV_ACTUAL = BASE_DIR / "sima_interpolacion_lecturas.csv"
 CSV_HISTORICO = BASE_DIR / "sima_interpolacion_historico.csv"
 CSV_DIAGNOSTICO = BASE_DIR / "sima_interpolacion_diagnostico.csv"
+CSV_OFFSETS = BASE_DIR / "sima_offsets_estaciones.csv"
 
-CRS_METRICO = 32614      # UTM 14N (metros). Las distancias se calculan en km.
-BUFFER_KM = 2.0          # margen alrededor de las estaciones válidas
+CRS_METRICO = 32614      # UTM 14N (metros); las distancias se calculan en km
+BUFFER_KM = 0.0          # 0 = hasta el límite de los sensores; sube para ampliar
 MIN_ESTACIONES = 5       # mínimo de estaciones válidas para interpolar
 MARGEN_RANGO = 0.15      # se permite salir 15% del rango observado
-MIN_SKILL = 0.10         # el método debe mejorar >=10% a la media; si no, media
-TOL_EMPATE = 0.03        # métodos a <3% del mejor RMSE se consideran empatados
+TOL_EMPATE = 0.03        # combinaciones a <3% del mejor RMSE = empate
 DIST_BAJA_KM = 6.0       # más lejos que esto, la calidad baja un nivel
+MIN_HORAS_OFFSET = 15    # horas válidas mínimas de una estación para su offset
+MIN_ESTACIONES_BASE = 8  # estaciones válidas mínimas para calcular base(t) histórica
+RAD_DIA_WM2 = 50.0       # mediana de red > esto => de día (0.0 = sensor caído)
+RAD_MIN_OFFSET = 100.0   # offsets de radiación solo con sol alto
+RAD_NOCHE_WM2 = 20.0     # mediana < esto => noche: radiación = 0 en todo el mapa
 
+# transf: 'lin' (diferencias) | 'log' (razones). off_max: sesgo máximo creíble de
+# una estación (en unidades transformadas). res_outlier: (piso, techo) para anular
+# lecturas actuales muy distintas a base+offset (None = no filtrar; en PM un foco
+# local puede ser real).
 VARIABLES = {
     "PM10": dict(col="PM10_ugm3", salida="sima_PM10_AGEB.geojson",
-                 rango=(1.0, 1000.0), lim_min=0.0, lim_max=None),
+                 rango=(1.0, 1000.0), lim_min=0.0, lim_max=None,
+                 transf="log", piso_log=1.0, off_max=1.2, res_outlier=None),
     "PM25": dict(col="PM25_ugm3", salida="sima_PM25_AGEB.geojson",
-                 rango=(0.5, 500.0), lim_min=0.0, lim_max=None),
+                 rango=(0.5, 500.0), lim_min=0.0, lim_max=None,
+                 transf="log", piso_log=0.5, off_max=1.2, res_outlier=None),
     "Temperatura": dict(col="Temperatura_C", salida="sima_Temperatura_AGEB.geojson",
-                        rango=(-5.0, 50.0), lim_min=None, lim_max=None),
+                        rango=(-5.0, 50.0), lim_min=None, lim_max=None,
+                        transf="lin", off_max=5.0, res_outlier=(4.0, 8.0)),
     "Humedad": dict(col="Humedad_pct", salida="sima_Humedad_AGEB.geojson",
-                    rango=(1.0, 100.0), lim_min=0.0, lim_max=100.0),
+                    rango=(1.0, 100.0), lim_min=0.0, lim_max=100.0,
+                    transf="lin", off_max=15.0, res_outlier=(15.0, 30.0)),
     "Radiacion": dict(col="RadiacionSolar_Wm2", salida="sima_Radiacion_AGEB.geojson",
-                      rango=(0.0, 1400.0), lim_min=0.0, lim_max=None),
+                      rango=(0.0, 1400.0), lim_min=0.0, lim_max=None,
+                      transf="log", piso_log=1.0, off_max=1.2,
+                      res_outlier=(0.8, 1.5), solo_dia=True, min_horas=8),
 }
 COLS = [v["col"] for v in VARIABLES.values()]
 
-# Outlier espacial: umbral = 3*MAD, acotado entre piso y techo (unidades de la variable)
-OUTLIER = {
-    "Temperatura_C": dict(piso=4.0, techo=8.0),
-    "Humedad_pct": dict(piso=15.0, techo=30.0),
-    "RadiacionSolar_Wm2": dict(piso=200.0, techo=350.0),
-}
-RAD_DIA_WM2 = 50.0       # si la mediana de la red supera esto, es de día
+
+def tf(x, cfg):
+    x = np.asarray(x, dtype=float)
+    return np.log(np.maximum(x, cfg["piso_log"])) if cfg["transf"] == "log" else x
+
+
+def tf_inv(y, cfg):
+    return np.exp(y) if cfg["transf"] == "log" else y
+
 
 # =============================================================================
 # 2. LECTURA Y CONTROL DE CALIDAD
@@ -124,24 +149,47 @@ RAD_DIA_WM2 = 50.0       # si la mediana de la red supera esto, es de día
 MARCAS_GIT = ("<<<<<<<", "=======", ">>>>>>>")
 
 
-def cargar_lecturas(path):
-    """Lee el CSV (tolera marcas de conflicto de git) y devuelve el ÚLTIMO timestamp."""
+def leer_csv_tolerante(path):
+    """Lee un CSV del SIMA aunque tenga marcas de conflicto de git."""
     lineas = Path(path).read_text(encoding="utf-8-sig").splitlines()
     texto = "\n".join(l for l in lineas if not l.startswith(MARCAS_GIT))
     df = pd.read_csv(io.StringIO(texto), dtype=str, keep_default_na=False,
                      on_bad_lines="skip")
-    df = df[df["timestamp"].str.match(r"^\d{4}-\d{2}-\d{2}")]
+    df = df[df["timestamp"].str.match(r"^\d{4}-\d{2}-\d{2}")].copy()
     for c in COLS + ["RadiacionSolar_kWhm2", "lat", "lon"]:
         if c not in df.columns:
             df[c] = np.nan
         df[c] = pd.to_numeric(df[c], errors="coerce")        # 'ND' -> NaN
+    return df.reset_index(drop=True)
+
+
+def cargar_lecturas(path):
+    df = leer_csv_tolerante(path)
     ult = df["timestamp"].max()
     df = df[df["timestamp"] == ult].drop_duplicates("Clave", keep="last")
     return df.reset_index(drop=True), ult
 
 
-def control_calidad(df):
-    """Anula (NaN) las lecturas inválidas. Devuelve (df_limpio, bitácora)."""
+def cargar_historico(path):
+    """Histórico de estaciones: quita duplicados exactos y filas en conflicto
+    (misma hora y estación con valores distintos: no se sabe cuál es la real)."""
+    df = leer_csv_tolerante(path)
+    df = df.drop_duplicates()
+    df = df.drop_duplicates(["timestamp", "Clave"], keep=False)
+    return df.reset_index(drop=True)
+
+
+def detectar_factor_rad(df):
+    """El SIMA entrega la radiación en kW/m2 (0-1). Si es así, x1000 -> W/m2."""
+    rad = df["RadiacionSolar_kWhm2"].combine_first(df["RadiacionSolar_Wm2"])
+    pos = rad[(rad > 0) & (rad < 1e4)]
+    return 1000.0 if len(pos) and pos.quantile(0.99) <= 5 else 1.0
+
+
+def control_calidad(df, factor_rad):
+    """Anula (NaN) lecturas inválidas de UNA hora. Devuelve (df_limpio, bitácora).
+    (El filtro de outliers se hace después, contra base+offset, no contra la
+    mediana: así no se borra la variación geográfica real.)"""
     df = df.copy()
     log = []
 
@@ -151,35 +199,26 @@ def control_calidad(df):
             log.append((col, df["Estacion"].iloc[i], df[col].iloc[i], motivo))
         df.loc[mask, col] = np.nan
 
-    # a) centinelas (-9999) en cualquier columna de datos
-    for c in COLS + ["RadiacionSolar_kWhm2"]:
+    for c in COLS + ["RadiacionSolar_kWhm2"]:                 # a) centinelas
         anular(df[c] <= -999, c, "centinela -9999")
 
-    # Radiación: hay dos columnas posibles; se unifican y se pasa a W/m2.
     rad = df["RadiacionSolar_kWhm2"].combine_first(df["RadiacionSolar_Wm2"])
-    pos = rad[rad > 0]
-    if len(pos) and pos.max() <= 5:          # valores 0-5 => son kW/m2
-        rad = rad * 1000.0
-    df["RadiacionSolar_Wm2"] = rad
+    df["RadiacionSolar_Wm2"] = rad * factor_rad
     df = df.drop(columns=["RadiacionSolar_kWhm2"])
 
-    # b) ceros = sensor sin dato (en Monterrey no se mide 0.0 exacto)
-    anular(df["Temperatura_C"] == 0, "Temperatura_C", "cero = sin dato")
+    anular(df["Temperatura_C"] == 0, "Temperatura_C", "cero = sin dato")   # b)
     anular(df["Humedad_pct"] == 0, "Humedad_pct", "cero = sin dato")
 
-    # c) rangos físicos
-    for v in VARIABLES.values():
+    for v in VARIABLES.values():                              # c) rangos
         lo, hi = v["rango"]
         anular((df[v["col"]] < lo) | (df[v["col"]] > hi), v["col"], "fuera de rango")
 
-    # d) radiación 0.0 de día
-    med_rad = df["RadiacionSolar_Wm2"].median()
+    med_rad = df["RadiacionSolar_Wm2"].median()               # d) 0.0 de día
     if pd.notna(med_rad) and med_rad > RAD_DIA_WM2:
         anular(df["RadiacionSolar_Wm2"] == 0, "RadiacionSolar_Wm2",
                "0.0 en horas de sol (sensor caído)")
 
-    # e) copias exactas entre estaciones
-    def copias(cols, min_nz, solo_decimales=False):
+    def copias(cols, min_nz, solo_decimales=False):           # e) copias
         sub = df[cols].dropna()
         sub = sub[(sub != 0).sum(axis=1) >= min_nz]
         if solo_decimales:
@@ -193,39 +232,75 @@ def control_calidad(df):
     m = copias(["Temperatura_C", "Humedad_pct", "RadiacionSolar_Wm2"], 2)
     for c in ("Temperatura_C", "Humedad_pct", "RadiacionSolar_Wm2"):
         anular(m, c, "copia idéntica en otra estación")
-
-    # f) outlier espacial (variables suaves)
-    for c, r in OUTLIER.items():
-        x = df[c]
-        if x.count() < 5:
-            continue
-        med = x.median()
-        desv = (x - med).abs()
-        mad = desv.median() * 1.4826
-        umbral = float(np.clip(3 * mad, r["piso"], r["techo"]))
-        anular((desv > umbral).values, c, f"outlier espacial (mediana red {med:.1f})")
-
     return df, log
 
 
 # =============================================================================
-# 3. MÉTODOS DE INTERPOLACIÓN  f(xy_tr, z_tr, xy_pr, **params) -> valores
-#    xy en km, z en unidades de la variable.
+# 3. OFFSETS PERSISTENTES POR ESTACIÓN (desde el histórico)
 # =============================================================================
-def metodo_media(xy_tr, z_tr, xy_pr):
-    """Línea base: todos reciben el promedio. Si algo no la supera, no sirve."""
-    return np.full(len(xy_pr), z_tr.mean())
+def calcular_offsets(hist, factor_rad):
+    """Devuelve {variable: DataFrame[Clave, Estacion, offset, n_horas, estado]}."""
+    limpias = [control_calidad(g.reset_index(drop=True), factor_rad)[0]
+               for _, g in hist.groupby("timestamp")]
+    h = pd.concat(limpias, ignore_index=True)
+    out = {}
+    for nombre, cfg in VARIABLES.items():
+        col = cfg["col"]
+        d = h[["timestamp", "Clave", "Estacion", col]].copy()
+        d["y"] = np.where(d[col].notna(), tf(d[col].fillna(1.0), cfg), np.nan)
+        g = d.groupby("timestamp")
+        d["base"] = g["y"].transform("median")
+        d["nv"] = g["y"].transform("count")
+        ok = d["y"].notna() & (d["nv"] >= MIN_ESTACIONES_BASE)
+        if cfg.get("solo_dia"):
+            med_orig = g[col].transform("median")
+            ok &= med_orig >= RAD_MIN_OFFSET
+        d = d[ok].copy()
+        d["anom"] = d["y"] - d["base"]
+        r = d.groupby("Clave").agg(Estacion=("Estacion", "first"),
+                                   offset=("anom", "median"),
+                                   n_horas=("anom", "count")).reset_index()
+        min_h = cfg.get("min_horas", MIN_HORAS_OFFSET)
+        estado = []
+        for _, f in r.iterrows():
+            # El sesgo imposible se revisa primero: -20 °C es un sensor malo
+            # aunque tenga pocas horas.
+            if f["n_horas"] >= 3 and abs(f["offset"]) > cfg["off_max"]:
+                estado.append(f"excluida: sesgo imposible ({f['offset']:+.2f}) "
+                              "= sensor descalibrado")
+            elif f["n_horas"] < min_h:
+                estado.append(f"excluida: solo {int(f['n_horas'])} horas válidas")
+            else:
+                estado.append("ok")
+        r["estado"] = estado
+        faltan = set(hist["Clave"]) - set(r["Clave"])       # sin ninguna hora válida
+        for k in faltan:
+            r.loc[len(r)] = [k, hist.loc[hist["Clave"] == k, "Estacion"].iloc[0],
+                             np.nan, 0, "excluida: sin horas válidas"]
+        out[nombre] = r
+
+    # Un sensor meteorológico descalibrado en una variable no es confiable en las
+    # otras (comparten estación/equipo): se excluye de temperatura, humedad y radiación.
+    meteo = ("Temperatura", "Humedad", "Radiacion")
+    malas = {k for n in meteo for k, e in zip(out[n]["Clave"], out[n]["estado"])
+             if str(e).startswith("excluida: sesgo")}
+    for n in meteo:
+        r = out[n]
+        m = r["Clave"].isin(malas) & ~r["estado"].str.startswith("excluida: sesgo")
+        r.loc[m, "estado"] = "excluida: sensor meteorológico descalibrado (sesgo en otra variable)"
+    return out
 
 
+# =============================================================================
+# 4. INTERPOLADORES  f(xy_tr, z_tr, xy_pr) -> valores   (xy en km)
+# =============================================================================
 def metodo_idw(xy_tr, z_tr, xy_pr, power):
-    """IDW: promedio ponderado por 1/distancia^power. Nunca sale del rango."""
     d = np.maximum(cdist(xy_pr, xy_tr), 1e-6)
     w = 1.0 / d ** power
     return (w * z_tr).sum(axis=1) / w.sum(axis=1)
 
 
 def metodo_tps(xy_tr, z_tr, xy_pr, smoothing):
-    """Thin-plate spline con tendencia lineal; 'smoothing' relaja el ajuste."""
     mu, sd = z_tr.mean(), z_tr.std()
     if sd == 0:
         return np.full(len(xy_pr), mu)
@@ -235,9 +310,8 @@ def metodo_tps(xy_tr, z_tr, xy_pr, smoothing):
 
 
 def metodo_kriging(xy_tr, z_tr, xy_pr, modelo):
-    """Kriging ordinario; variograma ajustado solo con las estaciones válidas.
-    exact_values=False permite 'nugget' (ruido de medición) => superficie más
-    suave y estable que forzar el paso exacto por cada estación."""
+    """exact_values=False permite 'nugget' (ruido de medición): superficie más
+    estable que forzar el paso exacto por cada estación."""
     ok = OrdinaryKriging(xy_tr[:, 0], xy_tr[:, 1], z_tr, variogram_model=modelo,
                          nlags=6, weight=True, exact_values=False,
                          verbose=False, enable_plotting=False)
@@ -245,26 +319,7 @@ def metodo_kriging(xy_tr, z_tr, xy_pr, modelo):
     return np.asarray(z)
 
 
-def construir_candidatos():
-    c = [("Media", metodo_media, {})]
-    for p in (1.0, 1.5, 2.0, 3.0):
-        c.append((f"IDW p={p}", metodo_idw, {"power": p}))
-    for s in (0.0, 0.2, 1.0, 5.0):
-        c.append((f"TPS suav={s}", metodo_tps, {"smoothing": s}))
-    if HAY_PYKRIGE:
-        for m in ("exponential", "spherical", "linear"):
-            c.append((f"Kriging {m}", metodo_kriging, {"modelo": m}))
-    return c
-
-
-PRIORIDAD = ["Kriging exponential", "Kriging spherical", "Kriging linear",
-             "TPS", "IDW", "Media"]
-
-
-# =============================================================================
-# 4. VALIDACIÓN CRUZADA Y SELECCIÓN
-# =============================================================================
-def acotar(pred, z_tr, lim_min, lim_max):
+def acotar(pred, z_tr, lim_min=None, lim_max=None):
     """No salir más de MARGEN_RANGO del rango observado; respetar límites físicos."""
     rango = z_tr.max() - z_tr.min()
     lo, hi = z_tr.min() - MARGEN_RANGO * rango, z_tr.max() + MARGEN_RANGO * rango
@@ -275,118 +330,226 @@ def acotar(pred, z_tr, lim_min, lim_max):
     return np.clip(pred, lo, hi)
 
 
-def predecir(func, params, xy_tr, z_tr, xy_pr, lim_min, lim_max):
-    return acotar(func(xy_tr, z_tr, xy_pr, **params), z_tr, lim_min, lim_max)
+# modos: ("cero",) | ("idw", p) | ("tps", s) | ("krig", modelo)
+OFF_MODOS = {"sin offset": ("cero",), "IDW p=2": ("idw", 2.0), "IDW p=3": ("idw", 3.0),
+             "TPS suav=1": ("tps", 1.0), "TPS suav=5": ("tps", 5.0)}
+RES_MODOS = {"sin residuo": ("cero",), "IDW p=2": ("idw", 2.0), "TPS suav=1": ("tps", 1.0)}
+if HAY_PYKRIGE:
+    OFF_MODOS.update({"Kriging exponential": ("krig", "exponential"),
+                      "Kriging spherical": ("krig", "spherical")})
+    RES_MODOS.update({"Kriging exponential": ("krig", "exponential")})
 
 
-def loocv(func, params, xy, z, lim_min, lim_max):
-    n = len(z)
-    pred = np.full(n, np.nan)
-    for i in range(n):
-        m = np.arange(n) != i
-        try:
-            pred[i] = predecir(func, params, xy[m], z[m], xy[i:i + 1],
-                               lim_min, lim_max)[0]
-        except Exception:
-            return None
-    return pred if np.all(np.isfinite(pred)) else None
+def ejecutar(modo, xy_tr, z_tr, xy_pr):
+    """Interpola z con el modo dado; None si el método falla."""
+    try:
+        if modo[0] == "cero":
+            return np.zeros(len(xy_pr))
+        if modo[0] == "idw":
+            p = metodo_idw(xy_tr, z_tr, xy_pr, modo[1])
+        elif modo[0] == "tps":
+            p = metodo_tps(xy_tr, z_tr, xy_pr, modo[1])
+        else:
+            p = metodo_kriging(xy_tr, z_tr, xy_pr, modo[1])
+        p = acotar(p, z_tr)
+        return p if np.all(np.isfinite(p)) else None
+    except Exception:
+        return None
 
 
-def ranking_metodos(xy, z, lim_min, lim_max):
+# =============================================================================
+# 5. MODELO  base + offset + residuo  y validación cruzada anidada
+# =============================================================================
+def componentes(xy_tr, y_tr, o_tr, xy_pr):
+    """Calcula, con las estaciones de entrenamiento, todas las piezas del modelo
+    en los puntos xy_pr (espacio transformado)."""
+    comp = {"base": {}, "off": {}, "res": {}}
+    clases = {"off": (np.median(y_tr - o_tr), o_tr),     # usa offsets del histórico
+              "none": (np.median(y_tr), np.zeros_like(y_tr))}
+    for cls, (base, o) in clases.items():
+        comp["base"][cls] = base
+        r_tr = y_tr - base - o
+        for nm, m in RES_MODOS.items():
+            comp["res"][(cls, nm)] = ejecutar(m, xy_tr, r_tr, xy_pr)
+    for nm, m in OFF_MODOS.items():
+        comp["off"][nm] = ejecutar(m, xy_tr, o_tr, xy_pr)
+    return comp
+
+
+def combinar(comp, off_nm, res_nm):
+    cls = "none" if off_nm == "sin offset" else "off"
+    off, res = comp["off"][off_nm], comp["res"][(cls, res_nm)]
+    if off is None or res is None:
+        return None
+    return comp["base"][cls] + off + res
+
+
+def combos_validos(usar_off):
+    nombres = [n for n in OFF_MODOS if usar_off or n == "sin offset"]
+    return [(o, r) for o in nombres for r in RES_MODOS
+            if not (o == "sin offset" and r == "sin residuo")]   # evita mapa plano
+
+
+def validacion_cruzada(xy, v, y, o, cfg, usar_off):
+    """Leave-one-out ANIDADO: el offset y el residuo de la estación retirada
+    también se predicen con las demás. Errores en unidades originales."""
+    combos = combos_validos(usar_off)
+    n = len(v)
+    pred = {c: np.full(n, np.nan) for c in combos}
+    flat = np.full(n, np.nan)
+    for j in range(n):
+        m = np.arange(n) != j
+        comp = componentes(xy[m], y[m], o[m], xy[j:j + 1])
+        flat[j] = np.median(v[m])
+        for c in combos:
+            p = combinar(comp, *c)
+            if p is not None:
+                pred[c][j] = acotar(tf_inv(p, cfg), v[m], cfg["lim_min"], cfg["lim_max"])[0]
+    rmse_flat = float(np.sqrt(np.mean((flat - v) ** 2)))
     filas = []
-    for nombre, func, params in construir_candidatos():
-        pred = loocv(func, params, xy, z, lim_min, lim_max)
-        if pred is None:
+    for c, p in pred.items():
+        if not np.all(np.isfinite(p)):
             continue
-        err = pred - z
-        filas.append(dict(metodo=nombre, func=func, params=params,
-                          rmse=float(np.sqrt(np.mean(err ** 2))),
-                          mae=float(np.mean(np.abs(err))),
-                          sesgo=float(np.mean(err))))
+        e = p - v
+        rmse = float(np.sqrt(np.mean(e ** 2)))
+        filas.append(dict(combo=c, metodo=f"offset: {c[0]} | residuo: {c[1]}",
+                          rmse=rmse, mae=float(np.mean(np.abs(e))),
+                          sesgo=float(np.mean(e)),
+                          skill=1.0 - rmse / rmse_flat if rmse_flat > 0 else 0.0))
     rk = pd.DataFrame(filas).sort_values("rmse").reset_index(drop=True)
-    rm = float(rk.loc[rk["metodo"] == "Media", "rmse"].iloc[0])
-    rk["skill"] = 1.0 - rk["rmse"] / rm if rm > 0 else 0.0
-    return rk
+    return rk, rmse_flat
 
 
-def elegir_metodo(rk):
-    """Empate (<TOL_EMPATE del mejor RMSE) -> prioridad por PRIORIDAD (kriging exp. primero).
-    Si el elegido no supera a la media por MIN_SKILL -> Media."""
+def elegir(rk):
+    """Empates (<TOL_EMPATE del mejor RMSE): gana la que use Kriging exponencial."""
     cerca = rk[rk["rmse"] <= rk["rmse"].iloc[0] * (1 + TOL_EMPATE)].copy()
-    cerca["p"] = cerca["metodo"].map(
-        lambda n: next((i for i, p in enumerate(PRIORIDAD) if n.startswith(p)), 99))
-    mejor = cerca.sort_values(["p", "rmse"]).iloc[0]
-    if mejor["metodo"] != "Media" and mejor["skill"] < MIN_SKILL:
-        return rk[rk["metodo"] == "Media"].iloc[0], True
-    return mejor, False
+    cerca["p"] = cerca["metodo"].map(lambda s: 0 if "Kriging exponential" in s else 1)
+    return cerca.sort_values(["p", "rmse"]).iloc[0]
 
 
 def calidad(skill, dist_km):
-    """Alta / Media / Baja según el skill del método y la distancia a estación."""
-    base = 2 if skill >= 0.30 else (1 if skill >= MIN_SKILL else 0)
+    base = 2 if skill >= 0.30 else (1 if skill >= 0.10 else 0)
     pts = np.clip(base - (dist_km > DIST_BAJA_KM).astype(int), 0, 2)
     return np.array(["Baja", "Media", "Alta"])[pts]
 
 
 # =============================================================================
-# 5. INTERPOLAR UNA VARIABLE
+# 6. INTERPOLAR UNA VARIABLE
 # =============================================================================
-def interpolar_variable(nombre, cfg, z_all, est_xy, destino_xy):
-    from shapely import contains_xy
-    from shapely.geometry import MultiPoint
+def interpolar_variable(nombre, cfg, df, est_xy, destino_xy, offsets):
+    col = cfg["col"]
+    v_all = df[col].values.astype(float)
+    valid = np.isfinite(v_all)
+    print(f"\n=== {nombre}: {int(valid.sum())} estaciones válidas de {len(v_all)} ===")
 
-    ok = np.isfinite(z_all)
-    n = int(ok.sum())
-    print(f"\n=== {nombre}: {n} estaciones válidas de {len(z_all)} ===")
+    # Radiación de noche: el sol no está, 0 W/m2 en todo el mapa (es lo físico).
+    if nombre == "Radiacion" and valid.any() and np.nanmedian(v_all[valid]) < RAD_NOCHE_WM2:
+        print("  Es de noche (radiación ~0): se asigna 0 W/m2 a todos los AGEBs.")
+        dist = cdist(destino_xy, est_xy[valid]).min(axis=1)
+        return dict(valor=np.zeros(len(destino_xy)), rmse=0.0, skill=np.nan,
+                    metodo="Noche (0 W/m2)", n=int(valid.sum()),
+                    dist=np.round(dist, 2), calidad=np.array(["Alta"] * len(dist)))
+
+    usar_off = offsets is not None
+    if usar_off and cfg.get("solo_dia") and np.nanmedian(v_all[valid]) < RAD_MIN_OFFSET:
+        usar_off = False
+        print("  Sol bajo: no se aplican offsets de radiación (solo con sol alto).")
+    if usar_off:
+        o_all = df["Clave"].map(offsets).values.astype(float)
+        anclas = valid & np.isfinite(o_all)
+        if anclas.sum() < MIN_ESTACIONES:
+            usar_off = False
+            print("  Pocas estaciones con offset confiable: se usa solo la hora actual.")
+    if not usar_off:
+        o_all = np.zeros(len(v_all))
+        anclas = valid.copy()
+
+    xy, v, o = est_xy[anclas], v_all[anclas], o_all[anclas]
+    nom = df["Estacion"].values[anclas]
+
+    # Outliers de ESTA hora contra base+offset (no contra la mediana simple)
+    if cfg["res_outlier"]:
+        piso, techo = cfg["res_outlier"]
+        for _ in range(2):
+            y = tf(v, cfg)
+            res = y - np.median(y - o) - o
+            mad = np.median(np.abs(res - np.median(res))) * 1.4826
+            umbral = float(np.clip(3 * mad, piso, techo))
+            malo = np.abs(res - np.median(res)) > umbral
+            if not malo.any() or (~malo).sum() < MIN_ESTACIONES:
+                break
+            for k in np.where(malo)[0]:
+                print(f"  Lectura descartada (outlier vs. patrón habitual): "
+                      f"{nom[k]} = {v[k]:.2f}")
+            xy, v, o, nom = xy[~malo], v[~malo], o[~malo], nom[~malo]
+    n = len(v)
     if n < MIN_ESTACIONES:
-        print(f"  Se necesitan >= {MIN_ESTACIONES}. Se omite (no se publica mapa).")
+        print(f"  Se necesitan >= {MIN_ESTACIONES} estaciones. Se omite.")
         return None
+    y = tf(v, cfg)
 
-    xy, z = est_xy[ok], z_all[ok]
+    rk, rmse_flat = validacion_cruzada(xy, v, y, o, cfg, usar_off)
+    if rk.empty:
+        print("  Ningún método pudo evaluarse. Se omite.")
+        return None
+    if MOSTRAR_RANKING:
+        print(rk[["metodo", "rmse", "mae", "sesgo", "skill"]].round(3).to_string(index=False))
+    mejor = elegir(rk)
+    skill = float(mejor["skill"])
+    print(f"  Modelo: {mejor['metodo']}")
+    print(f"  RMSE CV: {mejor['rmse']:.3f} | skill vs. mapa plano: {skill:.2f} "
+          f"(RMSE plano {rmse_flat:.3f})")
+    if skill <= 0:
+        print("  AVISO: no supera a un mapa plano; se publica con Calidad 'Baja'.")
+
+    comp = componentes(xy, y, o, destino_xy)
+    pred_y = combinar(comp, *mejor["combo"])
+    valores = acotar(tf_inv(pred_y, cfg), v, cfg["lim_min"], cfg["lim_max"])
     dist = cdist(destino_xy, xy).min(axis=1)
-    hull = MultiPoint([tuple(p) for p in xy]).convex_hull.buffer(BUFFER_KM)
-    dentro = contains_xy(hull, destino_xy[:, 0], destino_xy[:, 1])
-
-    if np.isclose(z.std(), 0):
-        print(f"  Valor uniforme ({z[0]:.3f}) -> constante.")
-        valores, rmse, skill, metodo = np.full(len(destino_xy), z[0]), 0.0, np.nan, "Constante"
-    else:
-        rk = ranking_metodos(xy, z, cfg["lim_min"], cfg["lim_max"])
-        if MOSTRAR_RANKING:
-            print(rk[["metodo", "rmse", "mae", "sesgo", "skill"]].round(3)
-                  .to_string(index=False))
-        mejor, forzada_media = elegir_metodo(rk)
-        if forzada_media:
-            print(f"  Ningún método mejora a la media >= {MIN_SKILL:.0%}: se usa la Media.")
-        metodo, rmse, skill = mejor["metodo"], float(mejor["rmse"]), float(mejor["skill"])
-        print(f"  Método: {metodo} | RMSE CV: {rmse:.3f} | skill vs. media: {skill:.2f}")
-        valores = predecir(mejor["func"], mejor["params"], xy, z, destino_xy,
-                           cfg["lim_min"], cfg["lim_max"])
-
-    valores = np.where(dentro, np.round(valores, 3), np.nan)
-    cal = calidad(0.0 if np.isnan(skill) else skill, dist)
-    print(f"  AGEBs con estimación: {int(dentro.sum())} de {len(dentro)}")
-    return dict(valor=valores, rmse=round(rmse, 3), skill=skill, metodo=metodo,
-                n=n, dist=np.round(dist, 2), calidad=np.where(dentro, cal, None))
+    print(f"  Rango estimado en AGEBs: {valores.min():.2f} a {valores.max():.2f}")
+    return dict(valor=np.round(valores, 3), rmse=round(float(mejor["rmse"]), 3),
+                skill=skill, metodo=mejor["metodo"], n=n,
+                dist=np.round(dist, 2), calidad=calidad(skill, dist))
 
 
 # =============================================================================
-# 6. PRINCIPAL
+# 7. PRINCIPAL
 # =============================================================================
 def main():
     import geopandas as gpd
 
-    if not CSV_LECTURAS.exists():
-        raise FileNotFoundError(f"No se encontró {CSV_LECTURAS}")
-    if not SHP_AGEB.exists():
-        raise FileNotFoundError(f"No se encontró {SHP_AGEB}")
+    for p in (CSV_LECTURAS, SHP_AGEB):
+        if not p.exists():
+            raise FileNotFoundError(f"No se encontró {p}")
 
     df, timestamp = cargar_lecturas(CSV_LECTURAS)
     print(f"Interpolación SIMA -> AGEB | lecturas de {timestamp} ({len(df)} estaciones)")
 
-    df, log = control_calidad(df)
+    # ---- Histórico de estaciones -> offsets persistentes
+    offsets, tabla_off = {n: None for n in VARIABLES}, None
+    if CSV_HIST_EST.exists():
+        hist = cargar_historico(CSV_HIST_EST)
+        factor_rad = detectar_factor_rad(hist)
+        print(f"Histórico: {hist['timestamp'].nunique()} horas | "
+              f"radiación x{factor_rad:g} -> W/m2")
+        res_off = calcular_offsets(hist, factor_rad)
+        filas = []
+        for nombre, r in res_off.items():
+            ok = r[r["estado"] == "ok"]
+            offsets[nombre] = dict(zip(ok["Clave"], ok["offset"])) if len(ok) else None
+            print(f"\nOffsets {nombre}:")
+            print(r.sort_values("offset")[["Estacion", "offset", "n_horas", "estado"]]
+                  .round(3).to_string(index=False))
+            filas.append(r.assign(variable=nombre))
+        pd.concat(filas).to_csv(CSV_OFFSETS, index=False, encoding="utf-8-sig")
+    else:
+        factor_rad = detectar_factor_rad(df)
+        print(f"AVISO: no existe {CSV_HIST_EST.name}; solo se usa la hora actual "
+              "(sin histórico hay mucha menos variación identificable).")
+
+    df, log = control_calidad(df, factor_rad)
     if log:
-        print("\nLecturas DESCARTADAS por control de calidad:")
+        print("\nLecturas actuales DESCARTADAS por control de calidad:")
         print(pd.DataFrame(log, columns=["variable", "estacion", "valor", "motivo"])
               .to_string(index=False))
 
@@ -395,10 +558,17 @@ def main():
     est_xy = np.column_stack([est.geometry.x, est.geometry.y]) / 1000.0
 
     ageb = gpd.read_file(SHP_AGEB)
-    ageb = (ageb.set_crs(4326) if ageb.crs is None else ageb).to_crs(CRS_METRICO)
+    if ageb.crs is None:
+        b = ageb.total_bounds
+        if abs(b[0]) <= 180 and abs(b[1]) <= 90:
+            ageb = ageb.set_crs(4326)
+        else:
+            raise ValueError("El shapefile no trae .prj (coordenadas proyectadas). "
+                             "Copia también 2025_1_19_A.prj y .dbf junto al .shp.")
+    ageb = ageb.to_crs(CRS_METRICO)
     col_id = "CVEGEO" if "CVEGEO" in ageb.columns else ageb.columns[0]
 
-    # Área de estudio general: casco convexo de las 15 estaciones + buffer
+    # Área de estudio: casco convexo de los sensores (+ BUFFER_KM)
     union = est.geometry.union_all() if hasattr(est.geometry, "union_all") \
         else est.geometry.unary_union
     hull = union.convex_hull.buffer(BUFFER_KM * 1000)
@@ -406,12 +576,11 @@ def main():
     dentro = puntos.within(hull).values
     ageb, puntos = ageb.loc[dentro].copy(), puntos.loc[dentro]
     destino_xy = np.column_stack([puntos.x, puntos.y]) / 1000.0
-    print(f"AGEBs en el área de estaciones: {len(ageb)}")
+    print(f"\nAGEBs dentro del polígono de los sensores: {len(ageb)}")
 
     resultados, diagnostico = {}, []
     for nombre, cfg in VARIABLES.items():
-        res = interpolar_variable(nombre, cfg, df[cfg["col"]].values.astype(float),
-                                  est_xy, destino_xy)
+        res = interpolar_variable(nombre, cfg, df, est_xy, destino_xy, offsets[nombre])
         resultados[nombre] = res
         if res:
             diagnostico.append(dict(timestamp=timestamp, variable=nombre,
@@ -436,7 +605,6 @@ def main():
         g["Fecha"] = timestamp
         g = g[[col_id, cfg["col"], "Error_CV", "Dist_Est_km", "Calidad", "Metodo",
                "Skill", "N_Estaciones", "Fecha", "geometry"]]
-        g[cfg["col"]] = g[cfg["col"]].astype(object).where(g[cfg["col"]].notna(), None)
         g.to_file(BASE_DIR / cfg["salida"], driver="GeoJSON")
 
     # ---- CSV ancho + histórico sin duplicados
@@ -445,17 +613,17 @@ def main():
         res = resultados[nombre]
         tabla[cfg["col"]] = res["valor"] if res else np.nan
         tabla[f"Error_CV_{nombre}"] = res["rmse"] if res else np.nan
-        tabla[f"Metodo_{nombre}"] = res["metodo"] if res else "ND"
+        tabla[f"Calidad_{nombre}"] = res["calidad"] if res else "ND"
     tabla_csv = tabla.fillna("ND")
     tabla_csv.to_csv(CSV_ACTUAL, index=False, encoding="utf-8-sig")
 
     if CSV_HISTORICO.exists():
-        hist = pd.read_csv(CSV_HISTORICO, encoding="utf-8-sig", dtype={"CVEGEO": str})
-        hist = pd.concat([hist, tabla_csv], ignore_index=True)
-        hist = hist.drop_duplicates(subset=["timestamp", "CVEGEO"], keep="last")
+        hist_i = pd.read_csv(CSV_HISTORICO, encoding="utf-8-sig", dtype={"CVEGEO": str})
+        hist_i = pd.concat([hist_i, tabla_csv], ignore_index=True)
+        hist_i = hist_i.drop_duplicates(subset=["timestamp", "CVEGEO"], keep="last")
     else:
-        hist = tabla_csv
-    hist.to_csv(CSV_HISTORICO, index=False, encoding="utf-8-sig")
+        hist_i = tabla_csv
+    hist_i.to_csv(CSV_HISTORICO, index=False, encoding="utf-8-sig")
 
     diag = pd.DataFrame(diagnostico)
     if not diag.empty:
