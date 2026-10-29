@@ -45,3 +45,8 @@
 2026-10-29 03:00:00,Temperatura,offset: sin offset | residuo: Kriging exponential,0.561,0.195,8
 2026-10-29 03:00:00,Humedad,offset: sin offset | residuo: IDW p=2,5.519,-0.037,6
 2026-10-29 03:00:00,Radiacion,Noche (0 W/m2),0.0,,14
+2026-10-29 10:00:00,PM10,offset: sin offset | residuo: IDW p=2,10.382,-0.023,14
+2026-10-29 10:00:00,PM25,offset: sin offset | residuo: IDW p=2,4.159,0.075,12
+2026-10-29 10:00:00,Temperatura,offset: sin offset | residuo: TPS suav=1,0.412,0.61,10
+2026-10-29 10:00:00,Humedad,offset: sin offset | residuo: Kriging exponential,5.283,0.055,8
+2026-10-29 10:00:00,Radiacion,offset: sin offset | residuo: TPS suav=1,25.28,0.332,12
