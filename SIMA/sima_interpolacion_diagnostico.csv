@@ -80,3 +80,8 @@
 2026-10-31 00:00:00,Temperatura,offset: Kriging exponential | residuo: sin residuo,0.628,0.069,8
 2026-10-31 00:00:00,Humedad,offset: Kriging spherical | residuo: Kriging exponential,4.924,-0.048,7
 2026-10-31 00:00:00,Radiacion,Noche (0 W/m2),0.0,,15
+2026-10-31 07:00:00,PM10,offset: Kriging exponential | residuo: IDW p=2,24.846,0.034,14
+2026-10-31 07:00:00,PM25,offset: sin offset | residuo: Kriging exponential,7.844,0.079,14
+2026-10-31 07:00:00,Temperatura,offset: Kriging spherical | residuo: sin residuo,0.511,0.626,8
+2026-10-31 07:00:00,Humedad,offset: sin offset | residuo: Kriging exponential,4.838,-0.086,7
+2026-10-31 07:00:00,Radiacion,Noche (0 W/m2),0.0,,14
