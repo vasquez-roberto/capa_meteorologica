@@ -56,4 +56,23 @@ El script selecciona la combinación óptima para cada hora:
 * **Casco Convexo (Convex Hull):** La interpolación se limita estrictamente al polígono formado por la red de sensores (+ un buffer opcional), evitando invención de datos en zonas lejanas sin cobertura.
 * **Control de Calidad Automático (QC):**
   * Descarta valores centinela (`-9999`), ceros en temperatura/humedad y lecturas de radiación en $0.0\text{ W/m}^2$ durante el día (sensores caídos).
-  * Detect
+  * Detecta estaciones descalibradas y elimina lecturas duplicadas en tiempo real.
+* **Métrica de Calidad por AGEB (Alta / Media / Baja):**
+  * Clasifica cada AGEB según el **Skill** del modelo ($1 - \text{RMSE} / \text{RMSE}_{\text{plano}}$) y la distancia a la estación válida más cercana ($<6\text{ km}$).
+
+---
+
+## 📁 Archivos y Estructura
+
+```text
+├── sima_captura.py               # Extractor automático de lecturas SIMA (manejo de sesiones/cookies)
+├── sima_interpolacion.py         # Motor de interpolación híbrido y validación cruzada
+├── sima_meteo_lecturas.csv       # Captura de la hora actual por estación
+├── sima_meteo_historico.csv      # Base acumulativa de lecturas históricas
+├── sima_PM10_AGEB.geojson        # Capa espacial de PM10 por AGEB
+├── sima_PM25_AGEB.geojson        # Capa espacial de PM2.5 por AGEB
+├── sima_Temperatura_AGEB.geojson # Capa espacial de Temperatura por AGEB
+├── sima_Humedad_AGEB.geojson     # Capa espacial de Humedad Relativa por AGEB
+├── sima_Radiacion_AGEB.geojson   # Capa espacial de Radiación Solar por AGEB
+├── sima_offsets_estaciones.csv   # Diagnóstico de sesgos e historial de sensores
+└── sima_interpolacion_diagnostico.csv # Bitácora de desempeño de los modelos
