@@ -34,7 +34,13 @@ jobs:
         python "Purple Air/purpleair_meteo.py"
         python "Purple Air/interpolacion_meteo_ageb.py"
 
-    - name: 2. Ejecutar capturas e interpolacion Kriging de SIMA
+    - name: 2. Interpolar calidad del aire PurpleAir (PM2.5 y PM10) por AGEB
+      # Si falla, SIMA y el guardado de las demas capas continuan
+      continue-on-error: true
+      run: |
+        python "Purple Air/interpolacion_calidadaire_ageb.py"
+
+    - name: 3. Ejecutar capturas e interpolacion Kriging de SIMA
       run: |
         echo "Procesando subcarpeta SIMA..."
         python "SIMA/sima_meteo.py"
