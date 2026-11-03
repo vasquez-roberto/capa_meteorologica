@@ -1,51 +1,59 @@
-# Módulo de Monitoreo e Interpolación Geoestadística: Red SIMA (ZMM)
+# 🗺️ Capa Meteorológica — Red SIMA Monterrey (Interpolación Espacial)
 
-Este módulo automatiza la captura y el procesamiento geoestadístico de las variables meteorológicas oficiales del **Sistema Integral de Monitoreo Ambiental (SIMA)** de Gobierno del Estado de Nuevo León, aplicando **Kriging Ordinario** sobre la estructura territorial de **AGEB (INEGI)**.
-
----
-
-## ¿Qué hace este módulo?
-
-1. **Monitoreo Oficial**: Extrae datos en tiempo real de las 15 estaciones oficiales de la red SIMA para las variables meteorológicas de Temperatura Exterior (`TOUT`), Humedad Relativa (`RH`) y Radiación Solar (`SR`).
-2. **Corrección Geométrica**: Reproyecta temporalmente la capa de AGEBs a UTM Zona 14N (`EPSG:32614`) para calcular los centroides en metros exactos antes de pasarlos al espacio geográfico `EPSG:4326`, evitando distorsiones de distancia.
-3. **Modelado Geoestadístico (Kriging Ordinario)**: Modela las superficies continuas mediante `pykrige`, calculando por cada AGEB tanto la estimación del valor esperado como la varianza del error de estimación ($\sigma^2_k$) para evaluar la incertidumbre espacial.
-4. **Validación Metodológica**: Incluye un script de evaluación cruzada Leave-One-Out (LOOCV) que permite medir matemáticamente el desempeño ($MAE$, $RMSE$, $R^2$) del modelo Kriging sobre la red.
-5. **Exportación SIG**: Genera GeoJSONs optimizados para visualización y simbología por incertidumbre en **ArcGIS Online**.
+Este módulo forma parte del proyecto **Capa Meteorológica** y se encarga de extraer, limpiar, procesar e **interpolar espacialmente** las lecturas meteorológicas y de contaminación de la Red de Monitoreo Ambiental (**SIMA**) de Monterrey, Nuevo León, proyectándolas sobre las **AGEBs (Áreas Geoestadísticas Básicas / Colonias)** del INEGI.
 
 ---
 
-## ¿Cómo lo hacemos?
+## 📌 Descripción General
 
-### 1. Extracción Oficial (`sima_meteo.py`)
-* **Parsing de Endpoints**: Se conecta a los endpoints validados de SIMA (`api_conc_correcto.php` y `api_meteo_correcto.php`).
-* **Estandarización de Variables**: Elimina caracteres invisibles en blanco y mapea estrictamente las columnas `TOUT` (Temperatura °C), `RH` (Humedad %) y `SR` (Radiación $W/m^2$).
-* **Salidas Generadas**:
-  * `sima_meteo_lecturas.csv`: Lectura actual por estación oficial.
-  * `sima_meteo_historico.csv`: Registro histórico acumulativo.
-
-### 2. Interpolación por Kriging Ordinario (`interpolacion_meteo_sima_ageb.py`)
-* **Ajuste de Variogramas**:
-  * **Temperatura y Humedad**: Aplica modelo de semivariograma Esférico (`spherical`).
-  * **Radiación Solar**: Aplica modelo de semivariograma Lineal (`linear`).
-* **Generación de Indicadores**: Asigna a cada polígono AGEB el valor estimado y su varianza asociada (`Var_Temp`, `Var_Hum`, `Var_Rad`).
-* **Archivos Exportados**:
-  * `sima_Temperatura_AGEB.geojson`, `sima_Humedad_AGEB.geojson`, `sima_Radiacion_AGEB.geojson`: Capas vectoriales para ArcGIS Online.
-  * `sima_interpolacion_lecturas.csv` e `sima_interpolacion_historico.csv`: Registros alfa-numéricos por AGEB.
-
-### 3. Validación Cruzada LOOCV (`validar_confiabilidad_kriging.py`)
-* **Evaluación Dejar-Uno-Fuera**: Retira iterativamente una estación, predice su valor con las $N-1$ restantes y calcula métricas globales de confiabilidad:
-  * **MAE (Error Absoluto Medio)**: $6.49\text{ °C}$
-  * **RMSE (Error Cuadrático Medio)**: $7.90\text{ °C}$
-  * **$R^2$ Score**: $-0.165$ (Demuestra alta incertidumbre al usar únicamente 15 puntos para toda la ZMM).
-  * **Varianza Promedio ($\sigma^2$)**: $57.52$
+Monitorear una zona metropolitana de más de 5 millones de habitantes con solo **15 estaciones fijas** presenta un reto de resolución espacial. Este repositorio resuelve esa limitación utilizando un **modelo de interpolación híbrido espacial-temporal**, el cual aprovecha el histórico de mediciones (`sima_meteo_historico.csv`) para capturar los microclimas y sesgos persistentes de la región.
 
 ---
 
-## ¿Cómo correrlo?
+## 🔬 Modelo Matemático de Interpolación
 
-### 1. Requisitos Previos
+El script de interpolación (`sima_interpolacion.py`) descompone el valor de cada variable ($PM_{10}$, $PM_{2.5}$, Temperatura, Humedad Relativa y Radiación Solar) en **3 componentes independientes**:
 
-Asegúrate de contar con las librerías necesarias instaladas:
+$$\text{Valor}(x, t) = \text{Base}(t) + \text{Offset}(x) + \text{Residuo}(x, t)$$
 
-```bash
-pip install pandas geopandas numpy pykrige scikit-learn shapely
+Donde:
+* **$x$**: Ubicación geográfica de la colonia/AGEB.
+* **$t$**: Hora específica de la lectura.
+
+### Componentes del Modelo
+
+1. **$\text{Base}(t)$ (Nivel General de la Red):**
+   * Corresponde a la **mediana robusta** de todas las estaciones válidas en la hora $t$. Capta eventos globales (ej. olas de calor, frentes fríos o contingencias ambientales en toda la ciudad).
+2. **$\text{Offset}(x)$ (Sesgo Geográfico Persistente):**
+   * Mide qué tanto se desvía históricamente una zona respecto a la media de la red (ej. García suele ser más seco y cálido que Chipinque).
+   * **Variables lineales** (Temperatura, Humedad): Diferencia directa en $\text{°C}$ o $\text{\%}$.
+   * **Variables logarítmicas** ($PM_{10}$, $PM_{2.5}$, Radiación): Se trabajan en espacio logarítmico para garantizar valores siempre positivos tras la transformación inversa.
+3. **$\text{Residuo}(x, t)$ (Anomalía Horaria Distribuida):**
+   * Es la variación local de la hora actual tras remover la base y el offset. Solo se incluye si la validación cruzada demuestra que reduce el error de predicción.
+
+---
+
+## ⚙️ Algoritmos y Selección Automática
+
+Para mapear los campos continuos de **Offset** y **Residuo** entre estaciones, el sistema evalúa dinámicamente las siguientes técnicas de interpolación:
+
+| Algoritmo | Código | Descripción |
+| :--- | :--- | :--- |
+| **Inverse Distance Weighting** | `idw` ($p=2, 3$) | Ponderación por distancia inversa. Robusto y rápido. |
+| **Thin-Plate Splines** | `tps` | Suavizado mediante splines de placa delgada. |
+| **Kriging Ordinario** | `krig` (Exponencial / Esférico) | Geoestadística basada en variogramas con tolerancia a ruido de medición (`nugget`). |
+
+### Validación Cruzada Anidada (Leave-One-Out)
+El script selecciona la combinación óptima para cada hora:
+1. Retira una estación a la vez y predice su valor utilizando las $N-1$ estaciones restantes.
+2. Calcula el **RMSE** (Root Mean Square Error) frente al valor real observado.
+3. Elige automáticamente la combinación con menor RMSE. En empates ($<3\%$ de diferencia), prioriza **Kriging Exponencial**.
+
+---
+
+## 🛡️ Filtros de Calidad y Confiabilidad
+
+* **Casco Convexo (Convex Hull):** La interpolación se limita estrictamente al polígono formado por la red de sensores (+ un buffer opcional), evitando invención de datos en zonas lejanas sin cobertura.
+* **Control de Calidad Automático (QC):**
+  * Descarta valores centinela (`-9999`), ceros en temperatura/humedad y lecturas de radiación en $0.0\text{ W/m}^2$ durante el día (sensores caídos).
+  * Detect
