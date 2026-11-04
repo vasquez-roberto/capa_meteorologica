@@ -155,3 +155,8 @@
 2026-11-04 02:00:00,Temperatura,offset: Kriging spherical | residuo: TPS suav=1,0.656,0.468,9
 2026-11-04 02:00:00,Humedad,offset: Kriging exponential | residuo: TPS suav=1,5.061,0.191,7
 2026-11-04 02:00:00,Radiacion,Noche (0 W/m2),0.0,,14
+2026-11-04 11:00:00,PM10,offset: Kriging exponential | residuo: IDW p=2,13.564,0.011,14
+2026-11-04 11:00:00,PM25,offset: sin offset | residuo: IDW p=2,2.836,0.153,15
+2026-11-04 11:00:00,Temperatura,offset: Kriging spherical | residuo: sin residuo,0.784,0.373,9
+2026-11-04 11:00:00,Humedad,offset: Kriging exponential | residuo: TPS suav=1,2.826,0.225,7
+2026-11-04 11:00:00,Radiacion,offset: sin offset | residuo: IDW p=2,74.086,0.274,8
