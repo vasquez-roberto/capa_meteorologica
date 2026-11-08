@@ -232,3 +232,8 @@
 2026-11-08 08:00:00,Temperatura,offset: sin offset | residuo: Kriging exponential,0.39,-0.077,9
 2026-11-08 08:00:00,Humedad,offset: sin offset | residuo: Kriging exponential,3.685,0.06,8
 2026-11-08 08:00:00,Radiacion,Noche (0 W/m2),0.0,,15
+2026-11-08 13:00:00,PM10,offset: Kriging exponential | residuo: TPS suav=1,7.455,0.113,14
+2026-11-08 13:00:00,PM25,offset: IDW p=3 | residuo: Kriging exponential,1.986,0.446,12
+2026-11-08 13:00:00,Temperatura,offset: sin offset | residuo: Kriging exponential,0.705,0.456,10
+2026-11-08 13:00:00,Humedad,offset: Kriging exponential | residuo: Kriging exponential,6.348,0.064,7
+2026-11-08 13:00:00,Radiacion,offset: sin offset | residuo: TPS suav=1,24.207,0.434,10
