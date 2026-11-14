@@ -72,5 +72,5 @@ SE2,SURESTE 2,-0.31884746415115695,20,ok,Radiacion
 SE3,SURESTE 3,0.046186660065507645,21,ok,Radiacion
 SO,SUROESTE,0.049096013089606316,21,ok,Radiacion
 SO2,SUROESTE 2,0.10845025573878964,21,ok,Radiacion
-NO2,NOROESTE 2,,0,excluida: sin horas válidas,Radiacion
 NO3,NOROESTE 3,,0,excluida: sensor meteorológico descalibrado (sesgo en otra variable),Radiacion
+NO2,NOROESTE 2,,0,excluida: sin horas válidas,Radiacion
