@@ -336,3 +336,5 @@
 2026-11-14 11:00:00,PM25,offset: Kriging spherical | residuo: Kriging exponential,6.736,0.058,7
 2026-11-14 11:00:00,Temperatura,offset: Kriging exponential | residuo: IDW p=2,2.951,0.045,5
 2026-11-14 11:00:00,Radiacion,Noche (0 W/m2),0.0,,13
+2026-11-14 16:00:00,PM10,offset: Kriging exponential | residuo: IDW p=2,11.718,-0.075,12
+2026-11-14 16:00:00,PM25,offset: sin offset | residuo: Kriging exponential,3.983,0.099,12
