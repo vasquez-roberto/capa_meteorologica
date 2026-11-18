@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aire por AGEB · Calidad del aire en la Zona Metropolitana de Monterrey</title>
+<meta name="description" content="Calidad del aire estimada para cada AGEB de la Zona Metropolitana de Monterrey con sensores comunitarios PurpleAir y la red oficial SIMA, cruzada con datos de población.">
+<meta name="theme-color" content="#00249c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --azul: #00249c;
+  --azul-hover: #001b75;
+  --azul-suave: #e8ecf8;
+  --tinta: #0f1b3d;
+  --texto-2: #46516f;
+  --texto-3: #6b7591;
+  --papel: #f4f6fb;
+  --blanco: #ffffff;
+  --linea: #dbe1ee;
+  --serie-sima: #2a78d6;
+  --serie-pa: #eb6834;
+  --cat-buena: #0ca30c;
+  --cat-aceptable: #fab219;
+  --cat-mala: #ec835a;
+  --cat-muymala: #d03b3b;
+  --cat-extrema: #7a2f8f;
+  --sin-dato: #e6e9f1;
+  --radio-l: 14px;
+  --radio-s: 8px;
+  --sombra: 0 1px 2px rgba(15, 27, 61, .06), 0 4px 16px rgba(15, 27, 61, .06);
+  --ancho: 1200px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+body {
+  margin: 0; font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--tinta); background: var(--blanco); font-size: 17px; line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+}
+a { color: var(--azul); }
+:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; border-radius: 4px; }
+.saltar { position: absolute; left: -999px; top: 8px; background: var(--azul); color: #fff; padding: 8px 14px; border-radius: var(--radio-s); z-index: 100; }
+.saltar:focus { left: 12px; }
+.contenedor { max-width: var(--ancho); margin: 0 auto; padding: 0 24px; }
+h1, h2, h3 { line-height: 1.15; margin: 0; letter-spacing: -0.015em; }
+h2 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 800; }
+h3 { font-size: 20px; font-weight: 700; }
+p { margin: 0; }
+.seccion { padding: 88px 0; }
+.seccion--papel { background: var(--papel); }
+.seccion__intro { max-width: 680px; margin-bottom: 40px; }
+.seccion__intro p { color: var(--texto-2); margin-top: 14px; font-size: 18px; }
+
+/* ---------- Cabecera ---------- */
+.cabecera { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.cabecera .contenedor { display: flex; align-items: center; gap: 28px; height: 68px; }
+.marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--tinta); font-weight: 800; font-size: 19px; letter-spacing: -0.02em; }
+.marca svg { flex: none; }
+.nav { display: flex; gap: 22px; margin-left: auto; }
+.nav a { color: var(--texto-2); text-decoration: none; font-weight: 600; font-size: 15px; }
+.nav a:hover { color: var(--azul); }
+.boton { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 12px 22px; font: inherit; font-weight: 700; font-size: 16px; text-decoration: none; cursor: pointer; border: 2px solid var(--azul); transition: background .15s, color .15s; }
+.boton--primario { background: var(--azul); color: #fff; }
+.boton--primario:hover { background: var(--azul-hover); border-color: var(--azul-hover); }
+.boton--secundario { background: transparent; color: var(--azul); }
+.boton--secundario:hover { background: var(--azul-suave); }
+.boton--chico { padding: 8px 16px; font-size: 14px; }
+.menu-movil { display: none; margin-left: auto; background: none; border: 0; padding: 8px; cursor: pointer; color: var(--tinta); }
+
+/* ---------- Hero ---------- */
+.hero { padding: 72px 0 56px; background:
+  radial-gradient(1200px 400px at 85% -10%, var(--azul-suave), transparent 60%), var(--blanco); }
+.hero .contenedor { display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: center; }
+.hero__aviso { display: inline-flex; align-items: center; gap: 8px; background: var(--azul-suave); color: var(--azul); font-weight: 600; font-size: 14px; padding: 6px 12px; border-radius: 999px; margin-bottom: 22px; }
+.hero h1 { font-size: clamp(40px, 5.6vw, 68px); font-weight: 800; letter-spacing: -0.03em; }
+.hero h1 .ageb { color: var(--azul); }
+.hero__texto { margin-top: 22px; font-size: 19px; color: var(--texto-2); max-width: 560px; }
+.hero__acciones { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+.ahora { background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-l); box-shadow: var(--sombra); padding: 26px; }
+.ahora__titulo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.ahora__titulo h3 { font-size: 17px; }
+.ahora__hora { color: var(--texto-3); font-size: 14px; }
+.ahora__filas { margin-top: 18px; display: grid; gap: 14px; }
+.ahora__fila { display: grid; grid-template-columns: 12px 1fr auto; gap: 12px; align-items: center; padding: 14px 0; border-top: 1px solid var(--linea); }
+.ahora__punto { width: 12px; height: 12px; border-radius: 50%; }
+.ahora__red { font-weight: 700; }
+.ahora__nota { font-size: 13px; color: var(--texto-3); }
+.ahora__valor { text-align: right; }
+.ahora__numero { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+.ahora__unidad { font-size: 13px; color: var(--texto-3); }
+.ahora__pie { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mini { background: var(--papel); border-radius: var(--radio-s); padding: 12px 14px; }
+.mini b { display: block; font-size: 22px; font-weight: 800; }
+.mini span { font-size: 13px; color: var(--texto-2); }
+
+/* ---------- Chips de categoría ---------- */
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--papel); color: var(--tinta); border: 1px solid var(--linea); white-space: nowrap; }
+.chip i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+/* ---------- Puertas de entrada ---------- */
+.puertas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.puerta { background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-l); padding: 28px; display: flex; flex-direction: column; gap: 12px; }
+.puerta__icono { width: 48px; height: 48px; border-radius: 12px; background: var(--azul-suave); color: var(--azul); display: grid; place-items: center; }
+.puerta p { color: var(--texto-2); flex: 1; }
+.puerta a { font-weight: 700; text-decoration: none; }
+.puerta a:hover { text-decoration: underline; }
+
+/* ---------- Dashboard ---------- */
+.controles { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-l); padding: 16px 18px; margin-bottom: 16px; }
+.control { display: flex; flex-direction: column; gap: 6px; }
+.control > span { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.segmentado { display: inline-flex; background: var(--papel); border: 1px solid var(--linea); border-radius: 999px; padding: 3px; }
+.segmentado button { border: 0; background: transparent; font: inherit; font-size: 14px; font-weight: 700; color: var(--texto-2); padding: 7px 14px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.segmentado button[aria-pressed="true"] { background: var(--blanco); color: var(--tinta); box-shadow: 0 1px 3px rgba(15,27,61,.15); }
+.segmentado .punto { width: 9px; height: 9px; border-radius: 50%; }
+select, input[type="search"] { font: inherit; font-size: 14px; padding: 8px 12px; border: 1px solid var(--linea); border-radius: var(--radio-s); background: var(--blanco); color: var(--tinta); min-width: 180px; }
+.tiempo { flex: 1; min-width: 280px; }
+.tiempo__fila { display: flex; align-items: center; gap: 10px; }
+.tiempo input[type="range"] { flex: 1; accent-color: var(--azul); }
+.tiempo__etiqueta { font-weight: 700; font-size: 14px; min-width: 150px; }
+.icono-boton { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--linea); background: var(--blanco); display: grid; place-items: center; cursor: pointer; color: var(--tinta); flex: none; }
+.icono-boton:hover { border-color: var(--azul); color: var(--azul); }
+
+.tablero { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr); gap: 16px; }
+.mapa { position: relative; background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-l); overflow: hidden; height: 600px; }
+.mapa canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.mapa canvas.arrastrando { cursor: grabbing; }
+.mapa__zoom { position: absolute; top: 14px; right: 14px; display: grid; gap: 6px; }
+.mapa__capas { position: absolute; top: 14px; left: 14px; background: rgba(255,255,255,.95); border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 8px 12px; font-size: 13px; display: grid; gap: 4px; }
+.mapa__capas label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.leyenda { position: absolute; left: 14px; bottom: 14px; background: rgba(255,255,255,.95); border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 10px 12px; font-size: 13px; }
+.leyenda b { display: block; margin-bottom: 6px; font-size: 13px; }
+.leyenda ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.leyenda li { display: flex; align-items: center; gap: 8px; }
+.leyenda i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+.globo { position: absolute; pointer-events: none; background: var(--tinta); color: #fff; font-size: 13px; padding: 8px 10px; border-radius: var(--radio-s); transform: translate(12px, -50%); white-space: nowrap; display: none; z-index: 5; box-shadow: var(--sombra); }
+.globo b { font-weight: 700; }
+.mapa__mensaje { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); background: var(--tinta); color: #fff; font-size: 14px; padding: 8px 14px; border-radius: 999px; display: none; z-index: 6; }
+
+.panel { background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-l); padding: 22px; display: flex; flex-direction: column; gap: 18px; min-height: 600px; }
+.panel__vacio { margin: auto 0; text-align: center; color: var(--texto-2); display: grid; gap: 14px; justify-items: center; padding: 20px; }
+.panel__vacio svg { color: var(--azul); }
+.panel__cabeza { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.panel__clave { font-size: 13px; color: var(--texto-3); }
+.panel__mun { font-size: 22px; font-weight: 800; }
+.cerrar { border: 0; background: none; cursor: pointer; color: var(--texto-3); padding: 4px; }
+.lecturas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lectura { border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 12px; display: grid; gap: 6px; }
+.lectura__red { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--texto-2); }
+.lectura__num { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+.lectura__num small { font-size: 13px; color: var(--texto-3); font-weight: 600; }
+.poblacion { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.poblacion div { background: var(--papel); border-radius: var(--radio-s); padding: 10px 12px; }
+.poblacion b { display: block; font-size: 20px; font-weight: 800; }
+.poblacion span { font-size: 13px; color: var(--texto-2); }
+.panel h4 { margin: 0 0 8px; font-size: 15px; }
+
+/* ---------- Gráficas ---------- */
+.grafica { position: relative; }
+.grafica svg { display: block; width: 100%; height: auto; overflow: visible; }
+.grafica .eje text { font-size: 12px; fill: var(--texto-3); }
+.grafica .rejilla line { stroke: #edf0f6; }
+.grafica .linea-base { stroke: var(--texto-3); }
+.grafica .cruz { stroke: var(--texto-3); stroke-dasharray: 3 3; }
+.grafica .marca-hora { stroke: var(--azul); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.grafica .umbral { stroke: var(--texto-3); stroke-dasharray: 2 4; }
+.grafica .umbral-txt { font-size: 11px; fill: var(--texto-2); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+.grafica__leyenda { display: flex; gap: 16px; font-size: 13px; color: var(--texto-2); margin-bottom: 6px; flex-wrap: wrap; }
+.grafica__leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.grafica__leyenda i { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
+.tip { position: absolute; pointer-events: none; background: var(--tinta); color: #fff; font-size: 12.5px; padding: 8px 10px; border-radius: var(--radio-s); display: none; white-space: nowrap; z-index: 4; box-shadow: var(--sombra); }
+.tip div { display: flex; align-items: center; gap: 6px; }
+.tip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+/* ---------- Exposición ---------- */
+.exposicion { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.exposicion > *, .tablero > *, .red > * { min-width: 0; }
+.tarjeta { background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-l); padding: 24px; }
+.tarjeta__cabeza { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.tarjeta__cabeza p { color: var(--texto-2); font-size: 14px; margin-top: 4px; }
+.barras { display: grid; gap: 10px; }
+.barra { display: grid; grid-template-columns: 150px 1fr 96px; gap: 12px; align-items: center; font-size: 14px; }
+.barra__pista { height: 22px; background: var(--papel); border-radius: 4px; overflow: hidden; }
+.barra__relleno { height: 100%; border-radius: 0 4px 4px 0; transition: width .35s ease; }
+.barra__valor { text-align: right; font-weight: 700; }
+.barra__valor small { display: block; font-weight: 500; color: var(--texto-3); font-size: 12px; }
+.tabla-envoltura { overflow-x: auto; margin-top: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--linea); }
+th { font-weight: 700; color: var(--texto-2); font-size: 13px; }
+td.num, th.num { text-align: right; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--papel); }
+
+/* ---------- Pasos ---------- */
+.pasos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; counter-reset: paso; }
+.paso { background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-l); padding: 26px; position: relative; }
+.paso__num { width: 40px; height: 40px; border-radius: 50%; background: var(--azul); color: #fff; display: grid; place-items: center; font-weight: 800; margin-bottom: 18px; }
+.paso p { color: var(--texto-2); margin-top: 10px; font-size: 15.5px; }
+
+/* ---------- Red ---------- */
+.red { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.cifras { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cifra { background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-l); padding: 22px; }
+.cifra b { display: block; font-size: 38px; font-weight: 800; letter-spacing: -0.03em; color: var(--azul); }
+.cifra span { color: var(--texto-2); font-size: 15px; }
+.invitacion { margin-top: 26px; padding: 22px; border-radius: var(--radio-l); background: var(--azul); color: #fff; }
+.invitacion h3 { color: #fff; }
+.invitacion p { margin-top: 8px; color: #dfe5fb; }
+
+/* ---------- Datos abiertos ---------- */
+.descargas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.descarga { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--blanco); border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 16px 18px; text-decoration: none; color: var(--tinta); font-weight: 600; }
+.descarga:hover { border-color: var(--azul); color: var(--azul); }
+.descarga small { display: block; color: var(--texto-3); font-weight: 500; font-size: 13px; }
+.datos-nota { margin-top: 24px; color: var(--texto-2); font-size: 15px; max-width: 760px; }
+
+/* ---------- Pie ---------- */
+.pie { background: var(--tinta); color: #c9d0e4; padding: 56px 0 32px; font-size: 15px; }
+.pie .contenedor { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; }
+.pie h3 { color: #fff; font-size: 16px; margin-bottom: 12px; }
+.pie a { color: #fff; }
+.pie ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.pie__final { grid-column: 1 / -1; border-top: 1px solid #2a3760; padding-top: 20px; font-size: 13px; color: #96a0bd; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 980px) {
+  .hero .contenedor, .tablero, .exposicion, .red { grid-template-columns: 1fr; }
+  .pasos { grid-template-columns: repeat(2, 1fr); }
+  .puertas { grid-template-columns: 1fr; }
+  .mapa { height: 520px; }
+  .panel { min-height: 0; }
+  .pie .contenedor { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .nav { display: none; position: absolute; top: 68px; left: 0; right: 0; background: #fff; flex-direction: column; padding: 16px 24px; border-bottom: 1px solid var(--linea); }
+  .nav.abierta { display: flex; }
+  .menu-movil { display: block; }
+  .cabecera .boton { display: none; }
+  .seccion { padding: 64px 0; }
+  .pasos, .descargas, .cifras, .lecturas { grid-template-columns: 1fr; }
+  .barra { grid-template-columns: 110px 1fr 80px; }
+  .mapa { height: 440px; }
+  .tiempo { min-width: 100%; }
+  .tiempo__fila { flex-wrap: wrap; }
+  .tiempo__etiqueta { min-width: 0; width: 100%; }
+  .leyenda { font-size: 12px; padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<header class="cabecera">
+  <div class="contenedor">
+    <a class="marca" href="#inicio" aria-label="Aire por AGEB, inicio">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30" rx="8" fill="#00249c"/><path d="M6 19c3-5 6-5 9 0s6 5 9 0" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M6 12c3-5 6-5 9 0s6 5 9 0" stroke="#9fb3f0" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+      Aire por AGEB
+    </a>
+    <button class="menu-movil" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <nav class="nav" id="nav" aria-label="Principal">
+      <a href="#mapa">Mapa</a>
+      <a href="#exposicion">Población expuesta</a>
+      <a href="#metodo">Cómo funciona</a>
+      <a href="#red">La red</a>
+      <a href="#datos">Datos abiertos</a>
+    </nav>
+    <a class="boton boton--primario boton--chico" href="#mapa">Ver mi AGEB</a>
+  </div>
+</header>
+
+<main id="contenido">
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="inicio">
+    <div class="contenedor">
+      <div>
+        <span class="hero__aviso">
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M12 7v6M12 16.5v.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          Prototipo en desarrollo con datos preliminares
+        </span>
+        <h1>El aire de Monterrey, <span class="ageb">AGEB por AGEB.</span></h1>
+        <p class="hero__texto">La calidad del aire en Monterrey solo se mide en sensores dispersos. Aquí la estimamos para cada AGEB con la red comunitaria PurpleAir y la red oficial SIMA, y la cruzamos con quién vive en cada una.</p>
+        <div class="hero__acciones">
+          <a class="boton boton--primario" href="#mapa">Explorar el mapa</a>
+          <a class="boton boton--secundario" href="#datos">Descargar los datos</a>
+        </div>
+      </div>
+      <aside class="ahora" aria-labelledby="ahora-titulo">
+        <div class="ahora__titulo">
+          <h3 id="ahora-titulo">PM<sub>2.5</sub> en la zona metropolitana</h3>
+          <span class="ahora__hora" id="ahora-hora"></span>
+        </div>
+        <div class="ahora__filas" id="ahora-filas"></div>
+        <div class="ahora__pie">
+          <div class="mini"><b id="ahora-agebs">–</b><span>AGEBs con estimación</span></div>
+          <div class="mini"><b id="ahora-hab">–</b><span>habitantes cubiertos</span></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= PUERTAS ================= -->
+  <section class="seccion seccion--papel" aria-labelledby="puertas-titulo">
+    <div class="contenedor">
+      <div class="seccion__intro">
+        <h2 id="puertas-titulo">Información ambiental abierta para todas las personas.</h2>
+        <p>Tres formas de usar el portal, sin registro y sin costo.</p>
+      </div>
+      <div class="puertas">
+        <article class="puerta">
+          <div class="puerta__icono"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+          <h3>Explora el mapa</h3>
+          <p>Recorre la ciudad hora por hora y compara lo que estiman los sensores comunitarios y la red oficial.</p>
+          <a href="#mapa">Abrir el mapa</a>
+        </article>
+        <article class="puerta">
+          <div class="puerta__icono"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9.5" r="2.5" fill="currentColor"/></svg></div>
+          <h3>Consulta tu AGEB</h3>
+          <p>Ubica tu colonia, revisa su historial y conoce cuántos niños, adultos mayores y personas con discapacidad viven ahí.</p>
+          <a href="#mapa" data-accion="ubicar">Ubicarme en el mapa</a>
+        </article>
+        <article class="puerta">
+          <div class="puerta__icono"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Usa los datos</h3>
+          <p>Descarga los históricos en CSV y GeoJSON para tus propios análisis, tu escuela o tu comunidad.</p>
+          <a href="#datos">Ir a las descargas</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MAPA ================= -->
+  <section class="seccion" id="mapa" aria-labelledby="mapa-titulo">
+    <div class="contenedor">
+      <div class="seccion__intro">
+        <h2 id="mapa-titulo">¿Qué aire se respira en tu colonia?</h2>
+        <p>Elige la red, el contaminante y la hora. Haz clic en cualquier AGEB para ver su historial y su población.</p>
+      </div>
+
+      <div class="controles" role="group" aria-label="Controles del mapa">
+        <div class="control">
+          <span id="lbl-red">Red</span>
+          <div class="segmentado" role="group" aria-labelledby="lbl-red" id="sel-red">
+            <button type="button" data-valor="pa" aria-pressed="true"><span class="punto" style="background:var(--serie-pa)"></span>PurpleAir</button>
+            <button type="button" data-valor="sima" aria-pressed="false"><span class="punto" style="background:var(--serie-sima)"></span>SIMA</button>
+          </div>
+        </div>
+        <div class="control">
+          <span id="lbl-cont">Contaminante</span>
+          <div class="segmentado" role="group" aria-labelledby="lbl-cont" id="sel-cont">
+            <button type="button" data-valor="pm25" aria-pressed="true">PM<sub>2.5</sub></button>
+            <button type="button" data-valor="pm10" aria-pressed="false">PM<sub>10</sub></button>
+          </div>
+        </div>
+        <label class="control">
+          <span>Municipio</span>
+          <select id="sel-mun"><option value="">Toda la zona metropolitana</option></select>
+        </label>
+        <label class="control">
+          <span>Buscar AGEB (CVEGEO)</span>
+          <input type="search" id="buscar" placeholder="Ej. 1903900011652" inputmode="numeric" autocomplete="off">
+        </label>
+        <div class="control tiempo">
+          <span id="lbl-hora">Hora</span>
+          <div class="tiempo__fila">
+            <button type="button" class="icono-boton" id="btn-play" aria-label="Reproducir la animación">
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path id="icono-play" d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg>
+            </button>
+            <input type="range" id="slider" min="0" max="0" value="0" aria-labelledby="lbl-hora">
+            <span class="tiempo__etiqueta" id="etiqueta-hora" aria-live="polite"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tablero">
+        <div class="mapa" id="mapa-caja">
+          <canvas id="lienzo" tabindex="0" aria-label="Mapa de calidad del aire por AGEB. Usa las flechas para desplazarte y las teclas más y menos para acercar."></canvas>
+          <div class="mapa__capas">
+            <label><input type="checkbox" id="ver-sensores" checked> Sensores PurpleAir</label>
+            <label><input type="checkbox" id="ver-estaciones" checked> Estaciones SIMA</label>
+          </div>
+          <div class="mapa__zoom">
+            <button type="button" class="icono-boton" id="zoom-mas" aria-label="Acercar"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <button type="button" class="icono-boton" id="zoom-menos" aria-label="Alejar"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+            <button type="button" class="icono-boton" id="zoom-reset" aria-label="Ver toda la zona"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+            <button type="button" class="icono-boton" id="btn-ubicar" aria-label="Ubicarme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3" fill="currentColor"/><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+          </div>
+          <div class="leyenda" id="leyenda"></div>
+          <div class="globo" id="globo" role="status"></div>
+          <div class="mapa__mensaje" id="mensaje" role="status"></div>
+        </div>
+
+        <aside class="panel" id="panel" aria-live="polite"></aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXPOSICIÓN ================= -->
+  <section class="seccion seccion--papel" id="exposicion" aria-labelledby="expo-titulo">
+    <div class="contenedor">
+      <div class="seccion__intro">
+        <h2 id="expo-titulo">¿Cuántas personas respiran cada calidad de aire?</h2>
+        <p>Sumamos la población censal de cada AGEB según la calidad del aire estimada a la hora seleccionada. Cambia el grupo para ver a quienes son más vulnerables.</p>
+      </div>
+      <div class="exposicion">
+        <div class="tarjeta">
+          <div class="tarjeta__cabeza">
+            <div>
+              <h3 id="expo-sub">Población por calidad del aire</h3>
+              <p id="expo-contexto"></p>
+            </div>
+            <select id="sel-grupo" aria-label="Grupo de población">
+              <option value="0">Población total</option>
+              <option value="1">Niñas y niños de 0 a 5 años</option>
+              <option value="2">Personas de 60 años o más</option>
+              <option value="3">Personas con discapacidad</option>
+            </select>
+          </div>
+          <div class="barras" id="barras"></div>
+          <div class="tabla-envoltura">
+            <h4 style="margin:8px 0 6px;font-size:15px">AGEBs con más personas en aire de calidad mala o peor</h4>
+            <table>
+              <thead><tr><th>AGEB</th><th>Municipio</th><th class="num">Valor</th><th class="num" id="th-grupo">Personas</th></tr></thead>
+              <tbody id="tabla-top"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tarjeta">
+          <div class="tarjeta__cabeza">
+            <div>
+              <h3 id="tendencia-titulo">Tendencia en la zona metropolitana</h3>
+              <p>Mediana de todos los AGEBs con estimación, por hora. Las líneas punteadas marcan los límites entre categorías.</p>
+            </div>
+          </div>
+          <div class="grafica" id="graf-ciudad"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MÉTODO ================= -->
+  <section class="seccion" id="metodo" aria-labelledby="metodo-titulo">
+    <div class="contenedor">
+      <div class="seccion__intro">
+        <h2 id="metodo-titulo">De un sensor a tu colonia, en cuatro pasos.</h2>
+        <p>Un proceso automático que se ejecuta varias veces al día en GitHub Actions.</p>
+      </div>
+      <ol class="pasos" style="list-style:none;margin:0;padding:0">
+        <li class="paso"><div class="paso__num">1</div><h3>Adquisición y preprocesamiento</h3><p>Descargamos las lecturas de PM<sub>2.5</sub>, PM<sub>10</sub>, temperatura y humedad de los sensores PurpleAir y de las estaciones SIMA, y las estandarizamos.</p></li>
+        <li class="paso"><div class="paso__num">2</div><h3>Asociación al mapa de AGEB</h3><p>Ubicamos cada sensor en los polígonos AGEB del INEGI y unimos los datos del Censo 2020 con la clave CVEGEO.</p></li>
+        <li class="paso"><div class="paso__num">3</div><h3>Interpolación espacial</h3><p>Estimamos un valor para cada AGEB a partir de los sensores cercanos: triangulación de Delaunay para PurpleAir y kriging para SIMA.</p></li>
+        <li class="paso"><div class="paso__num">4</div><h3>Dashboard y análisis</h3><p>Publicamos el mapa, el historial por AGEB y los datos abiertos, listos para el gemelo digital MAITEC.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= RED ================= -->
+  <section class="seccion seccion--papel" id="red" aria-labelledby="red-titulo">
+    <div class="contenedor red">
+      <div>
+        <h2 id="red-titulo">Una red comunitaria que puede crecer.</h2>
+        <p style="margin-top:14px;color:var(--texto-2);font-size:18px">Los sensores PurpleAir los instalan escuelas, empresas y vecinos. Cada sensor nuevo en exteriores mejora la estimación de las colonias que lo rodean.</p>
+        <div class="invitacion">
+          <h3>Suma tu sensor</h3>
+          <p>Si tienes un sensor PurpleAir en exteriores dentro de la zona metropolitana, sus lecturas públicas pueden alimentar este mapa. Escríbenos desde el repositorio del proyecto.</p>
+        </div>
+      </div>
+      <div class="cifras" id="cifras"></div>
+    </div>
+  </section>
+
+  <!-- ================= DATOS ================= -->
+  <section class="seccion" id="datos" aria-labelledby="datos-titulo">
+    <div class="contenedor">
+      <div class="seccion__intro">
+        <h2 id="datos-titulo">Datos abiertos, para que otros también construyan.</h2>
+        <p>Todos los históricos están en el repositorio público del proyecto. Descárgalos directamente.</p>
+      </div>
+      <div class="descargas" id="descargas"></div>
+      <p class="datos-nota">Las estimaciones de PurpleAir provienen de sensores de bajo costo y todavía no incluyen la corrección por humedad de la EPA ni un control de calidad completo de los sensores; ambos están en desarrollo. No sustituyen al monitoreo oficial. Las horas se muestran en hora local de Monterrey.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="pie">
+  <div class="contenedor">
+    <div>
+      <h3>Aire por AGEB</h3>
+      <p>Capa de monitoreo de calidad del aire y exposición sociodemográfica para la Zona Metropolitana de Monterrey. Prototipo de software.</p>
+    </div>
+    <div>
+      <h3>Equipo</h3>
+      <ul>
+        <li>Roberto René Vásquez Rodríguez</li>
+        <li>Dr. José Ignacio Huertas Cardozo</li>
+        <li>Dra. Luisa Fernanda Chaparro Sierra</li>
+        <li>Ing. Daniel Pereira Sandino</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Accesos</h3>
+      <ul>
+        <li><a href="#mapa">Mapa por AGEB</a></li>
+        <li><a href="#datos">Datos abiertos</a></li>
+        <li><a id="enlace-repo" href="https://github.com/vasquez-roberto/capa_meteorologica" target="_blank" rel="noopener">Repositorio en GitHub</a></li>
+      </ul>
+    </div>
+    <p class="pie__final" id="pie-final">Fuentes: red comunitaria PurpleAir, Sistema Integral de Monitoreo Ambiental (SIMA) de Nuevo León, INEGI (marco geoestadístico y Censo de Población y Vivienda 2020).</p>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+(() => {
+"use strict";
+const D = window.DASHBOARD_DATA;
+if (!D) {
+  document.getElementById("panel").innerHTML = '<div class="panel__vacio"><b>No se encontraron los datos.</b><p>Coloca el archivo data.js junto a index.html o genera uno nuevo con construir_datos_dashboard.py.</p></div>';
+  return;
+}
+
+// ------------------------------------------------------------------ utilidades
+const $ = (s) => document.querySelector(s);
+const fmt = new Intl.NumberFormat("es-MX");
+const fmt1 = new Intl.NumberFormat("es-MX", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const COLOR = {
+  pa: css("--serie-pa"), sima: css("--serie-sima"), sinDato: css("--sin-dato"),
+  tinta: css("--tinta"), azul: css("--azul"),
+};
+const NOMBRE_RED = { pa: "PurpleAir", sima: "SIMA" };
+const NOMBRE_CONT = { pm25: "PM2.5", pm10: "PM10" };
+const HTML_CONT = { pm25: "PM<sub>2.5</sub>", pm10: "PM<sub>10</sub>" };
+// Rangos de calidad del aire usados en las capas del proyecto (µg/m³)
+const CATEGORIAS = [
+  { nombre: "Buena", color: css("--cat-buena"), pm25: 15, pm10: 45 },
+  { nombre: "Aceptable", color: css("--cat-aceptable"), pm25: 33, pm10: 60 },
+  { nombre: "Mala", color: css("--cat-mala"), pm25: 79, pm10: 132 },
+  { nombre: "Muy mala", color: css("--cat-muymala"), pm25: 130, pm10: 213 },
+  { nombre: "Extremadamente mala", color: css("--cat-extrema"), pm25: Infinity, pm10: Infinity },
+];
+const categoria = (v, cont) => v == null ? null : CATEGORIAS.findIndex((c) => v <= c[cont]);
+const chip = (v, cont) => {
+  const k = categoria(v, cont);
+  if (k == null || k < 0) return '<span class="chip"><i style="background:var(--sin-dato)"></i>Sin dato</span>';
+  return `<span class="chip"><i style="background:${CATEGORIAS[k].color}"></i>${CATEGORIAS[k].nombre}</span>`;
+};
+const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+const aFecha = (s) => { const [f, h] = s.split("T"); const [y, m, d] = f.split("-").map(Number); const [hh, mm] = h.split(":").map(Number); return new Date(y, m - 1, d, hh, mm); };
+const fechaLarga = (d) => `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}, ${String(d.getHours()).padStart(2, "0")}:00 h`;
+const fechaCorta = (d) => `${d.getDate()} ${MESES[d.getMonth()]}`;
+const mediana = (a) => { const v = a.filter((x) => x != null).sort((x, y) => x - y); if (!v.length) return null; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; };
+
+// ------------------------------------------------------------------ datos
+const AG = D.agebs;
+const N = AG.length;
+const HORAS = { pa: D.pa.horas.map(aFecha), sima: D.sima.horas.map(aFecha) };
+const valor = (red, cont, i, t) => { const v = D[red][cont][i][t]; return v == null ? null : v / 10; };
+const indicePorId = new Map(AG.map((a, i) => [a.id, i]));
+const nombreMun = (m) => D.municipios[m] || `Municipio ${m}`;
+const horaMasCercana = (red, fecha) => {
+  const h = HORAS[red]; let mejor = 0, dm = Infinity;
+  h.forEach((x, k) => { const d = Math.abs(x - fecha); if (d < dm) { dm = d; mejor = k; } });
+  return { indice: mejor, diferenciaH: dm / 36e5 };
+};
+
+const estado = { red: "pa", cont: "pm25", t: HORAS.pa.length - 1, mun: "", sel: null, grupo: 0, sensores: true, estaciones: true };
+
+// ------------------------------------------------------------------ proyección
+let lat0 = 0, minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+{ let s = 0, n = 0; AG.forEach((a) => a.g.forEach((p) => p[0].forEach(([, la]) => { s += la; n++; }))); lat0 = s / n; }
+const KX = Math.cos(lat0 * Math.PI / 180);
+const proy = (lon, lat) => [lon * KX, -lat];
+const desproy = (x, y) => [x / KX, -y];
+const rutas = AG.map((a) => {
+  const ruta = new Path2D(); let bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
+  a.g.forEach((pol) => pol.forEach((anillo) => {
+    anillo.forEach(([lo, la], k) => {
+      const [x, y] = proy(lo, la);
+      if (k) ruta.lineTo(x, y); else ruta.moveTo(x, y);
+      bx0 = Math.min(bx0, x); by0 = Math.min(by0, y); bx1 = Math.max(bx1, x); by1 = Math.max(by1, y);
+    });
+    ruta.closePath();
+  }));
+  minX = Math.min(minX, bx0); minY = Math.min(minY, by0); maxX = Math.max(maxX, bx1); maxY = Math.max(maxY, by1);
+  return { ruta, caja: [bx0, by0, bx1, by1] };
+});
+
+// ------------------------------------------------------------------ mapa (canvas)
+const lienzo = $("#lienzo"), ctx = lienzo.getContext("2d"), caja = $("#mapa-caja");
+const ctxHit = document.createElement("canvas").getContext("2d");
+let ancho = 0, alto = 0, dpr = 1, vista = { s: 1, tx: 0, ty: 0 };
+
+function ajustarA(x0, y0, x1, y1, margen = 30) {
+  const s = Math.min((ancho - 2 * margen) / (x1 - x0), (alto - 2 * margen) / (y1 - y0));
+  vista = { s, tx: ancho / 2 - s * (x0 + x1) / 2, ty: alto / 2 - s * (y0 + y1) / 2 };
+}
+function encuadreMunicipio() {
+  // Sin municipio: encuadra los AGEBs con dato en la red activa (la zona con cobertura)
+  const incluir = estado.mun ? (i) => AG[i].m === estado.mun : (i) => D[estado.red].pm25[i].some((v) => v != null);
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  AG.forEach((a, i) => { if (incluir(i)) { const c = rutas[i].caja; x0 = Math.min(x0, c[0]); y0 = Math.min(y0, c[1]); x1 = Math.max(x1, c[2]); y1 = Math.max(y1, c[3]); } });
+  ajustarA(x0, y0, x1, y1, 40);
+}
+function redimensionar() {
+  const r = caja.getBoundingClientRect(); const nuevo = !ancho;
+  dpr = window.devicePixelRatio || 1; ancho = r.width; alto = r.height;
+  lienzo.width = Math.round(ancho * dpr); lienzo.height = Math.round(alto * dpr);
+  if (nuevo) encuadreMunicipio();
+  dibujar();
+}
+function colorAgeb(i) {
+  const v = valor(estado.red, estado.cont, i, estado.t);
+  const k = categoria(v, estado.cont);
+  return k == null || k < 0 ? COLOR.sinDato : CATEGORIAS[k].color;
+}
+function dibujar() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, ancho, alto);
+  ctx.fillStyle = "#f7f8fc"; ctx.fillRect(0, 0, ancho, alto);
+  ctx.setTransform(dpr * vista.s, 0, 0, dpr * vista.s, dpr * vista.tx, dpr * vista.ty);
+  const grosor = 1 / vista.s;
+  ctx.lineJoin = "round";
+  for (let i = 0; i < N; i++) {
+    const atenuado = estado.mun && AG[i].m !== estado.mun;
+    ctx.globalAlpha = atenuado ? 0.25 : 0.92;
+    ctx.fillStyle = colorAgeb(i);
+    ctx.fill(rutas[i].ruta, "evenodd");
+  }
+  ctx.globalAlpha = 1; ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 0.6 * grosor;
+  for (let i = 0; i < N; i++) ctx.stroke(rutas[i].ruta);
+  if (hover != null && hover !== estado.sel) { ctx.strokeStyle = COLOR.tinta; ctx.lineWidth = 1.5 * grosor; ctx.stroke(rutas[hover].ruta); }
+  if (estado.sel != null) { ctx.strokeStyle = COLOR.tinta; ctx.lineWidth = 3 * grosor; ctx.stroke(rutas[estado.sel].ruta); }
+  // Puntos de la red
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const aPantalla = (lon, lat) => { const [x, y] = proy(lon, lat); return [x * vista.s + vista.tx, y * vista.s + vista.ty]; };
+  if (estado.sensores) D.sensores.forEach((s) => {
+    const [x, y] = aPantalla(s.lon, s.lat); if (x < -10 || y < -10 || x > ancho + 10 || y > alto + 10) return;
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.fillStyle = COLOR.pa; ctx.fill();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = "#fff"; ctx.stroke();
+  });
+  if (estado.estaciones) D.estaciones.forEach((s) => {
+    const [x, y] = aPantalla(s.lon, s.lat); if (x < -10 || y < -10 || x > ancho + 10 || y > alto + 10) return;
+    ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x + 7, y + 5); ctx.lineTo(x - 7, y + 5); ctx.closePath();
+    ctx.fillStyle = COLOR.sima; ctx.fill(); ctx.lineWidth = 1.5; ctx.strokeStyle = "#fff"; ctx.stroke();
+  });
+  if (marcaUsuario) {
+    const [x, y] = aPantalla(marcaUsuario[0], marcaUsuario[1]);
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, 2 * Math.PI); ctx.fillStyle = COLOR.azul; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "#fff"; ctx.stroke();
+  }
+}
+function agebEn(px, py) {
+  const x = (px - vista.tx) / vista.s, y = (py - vista.ty) / vista.s;
+  return agebEnBase(x, y);
+}
+function agebEnBase(x, y) {
+  for (let i = 0; i < N; i++) {
+    const c = rutas[i].caja;
+    if (x < c[0] || x > c[2] || y < c[1] || y > c[3]) continue;
+    if (ctxHit.isPointInPath(rutas[i].ruta, x, y, "evenodd")) return i;
+  }
+  return null;
+}
+function zoom(factor, cx = ancho / 2, cy = alto / 2) {
+  const s = Math.max(200, Math.min(vista.s * factor, 400000));
+  const f = s / vista.s;
+  vista.tx = cx - (cx - vista.tx) * f; vista.ty = cy - (cy - vista.ty) * f; vista.s = s;
+  dibujar();
+}
+
+// Interacción con puntero
+let hover = null, arrastre = null, punteros = new Map(), pinchInicial = null, marcaUsuario = null;
+const globo = $("#globo");
+function mostrarGlobo(i, px, py) {
+  if (i == null) { globo.style.display = "none"; return; }
+  const v = valor(estado.red, estado.cont, i, estado.t);
+  const k = categoria(v, estado.cont);
+  globo.innerHTML = `<b>${nombreMun(AG[i].m)}</b><br>AGEB ${AG[i].id}<br>${NOMBRE_CONT[estado.cont]}: ${v == null ? "sin dato" : fmt1.format(v) + " µg/m³ (" + CATEGORIAS[k].nombre.toLowerCase() + ")"}<br>${fmt.format(AG[i].c[0])} habitantes`;
+  globo.style.display = "block";
+  const izquierda = px > ancho - 240;
+  globo.style.left = (izquierda ? px - 24 - globo.offsetWidth : px) + "px";
+  globo.style.top = py + "px";
+}
+lienzo.addEventListener("pointerdown", (e) => {
+  lienzo.setPointerCapture(e.pointerId); punteros.set(e.pointerId, [e.offsetX, e.offsetY]);
+  if (punteros.size === 1) arrastre = { x: e.offsetX, y: e.offsetY, tx: vista.tx, ty: vista.ty, movido: false };
+  if (punteros.size === 2) { const [a, b] = [...punteros.values()]; pinchInicial = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: vista.s }; arrastre = null; }
+});
+lienzo.addEventListener("pointermove", (e) => {
+  if (punteros.has(e.pointerId)) punteros.set(e.pointerId, [e.offsetX, e.offsetY]);
+  if (pinchInicial && punteros.size === 2) {
+    const [a, b] = [...punteros.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    zoom((pinchInicial.s * d / pinchInicial.d) / vista.s, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); return;
+  }
+  if (arrastre) {
+    const dx = e.offsetX - arrastre.x, dy = e.offsetY - arrastre.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) { arrastre.movido = true; lienzo.classList.add("arrastrando"); }
+    if (arrastre.movido) { vista.tx = arrastre.tx + dx; vista.ty = arrastre.ty + dy; globo.style.display = "none"; dibujar(); return; }
+  }
+  if (e.pointerType === "mouse") {
+    const i = agebEn(e.offsetX, e.offsetY);
+    if (i !== hover) { hover = i; dibujar(); }
+    mostrarGlobo(i, e.offsetX, e.offsetY);
+  }
+});
+const soltar = (e) => {
+  punteros.delete(e.pointerId);
+  if (punteros.size < 2) pinchInicial = null;
+  if (arrastre && !arrastre.movido && punteros.size === 0) { const i = agebEn(e.offsetX, e.offsetY); if (i != null) seleccionar(i); }
+  if (punteros.size === 0) { arrastre = null; lienzo.classList.remove("arrastrando"); }
+};
+lienzo.addEventListener("pointerup", soltar);
+lienzo.addEventListener("pointercancel", soltar);
+lienzo.addEventListener("pointerleave", () => { if (hover != null) { hover = null; dibujar(); } globo.style.display = "none"; });
+lienzo.addEventListener("wheel", (e) => { e.preventDefault(); zoom(Math.exp(-e.deltaY * 0.0015), e.offsetX, e.offsetY); }, { passive: false });
+lienzo.addEventListener("keydown", (e) => {
+  const paso = 60;
+  const acciones = { ArrowLeft: () => { vista.tx += paso; }, ArrowRight: () => { vista.tx -= paso; }, ArrowUp: () => { vista.ty += paso; }, ArrowDown: () => { vista.ty -= paso; } };
+  if (acciones[e.key]) { acciones[e.key](); dibujar(); e.preventDefault(); }
+  if (e.key === "+" || e.key === "=") zoom(1.4);
+  if (e.key === "-") zoom(1 / 1.4);
+});
+$("#zoom-mas").onclick = () => zoom(1.5);
+$("#zoom-menos").onclick = () => zoom(1 / 1.5);
+$("#zoom-reset").onclick = () => { encuadreMunicipio(); dibujar(); };
+new ResizeObserver(redimensionar).observe(caja);
+
+const mensaje = $("#mensaje"); let tMensaje;
+function avisar(texto) { mensaje.textContent = texto; mensaje.style.display = "block"; clearTimeout(tMensaje); tMensaje = setTimeout(() => { mensaje.style.display = "none"; }, 4000); }
+
+function ubicarme() {
+  if (!navigator.geolocation) return avisar("Tu navegador no permite obtener la ubicación.");
+  avisar("Buscando tu ubicación…");
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const { longitude: lon, latitude: lat } = pos.coords;
+    marcaUsuario = [lon, lat];
+    const [x, y] = proy(lon, lat);
+    const i = agebEnBase(x, y);
+    if (i == null) { avisar("Tu ubicación está fuera de los AGEBs con estimación."); dibujar(); return; }
+    seleccionar(i, true); avisar("Este es el AGEB donde estás.");
+  }, () => avisar("No se pudo obtener tu ubicación. Revisa los permisos del navegador."), { enableHighAccuracy: true, timeout: 10000 });
+}
+$("#btn-ubicar").onclick = ubicarme;
+document.querySelectorAll('[data-accion="ubicar"]').forEach((a) => a.addEventListener("click", () => setTimeout(ubicarme, 400)));
+
+// ------------------------------------------------------------------ leyenda
+function leyenda() {
+  const u = estado.cont === "pm25" ? "PM<sub>2.5</sub>" : "PM<sub>10</sub>";
+  let previo = 0;
+  const filas = CATEGORIAS.map((c) => {
+    const lim = c[estado.cont];
+    const rango = lim === Infinity ? `más de ${previo}` : `${previo === 0 ? "0" : previo + 1}–${lim}`;
+    previo = lim;
+    return `<li><i style="background:${c.color}"></i>${c.nombre} <span style="color:var(--texto-3)">(${rango})</span></li>`;
+  }).join("");
+  $("#leyenda").innerHTML = `<b>${u} en µg/m³ · ${NOMBRE_RED[estado.red]}</b><ul>${filas}<li><i style="background:var(--sin-dato)"></i>Sin dato</li></ul>`;
+}
+
+// ------------------------------------------------------------------ gráfica de líneas (SVG)
+function graficaLineas(contenedor, series, opciones = {}) {
+  const W = 560, H = opciones.alto || 240, M = { t: 12, r: 14, b: 30, l: 44 };
+  const todos = series.flatMap((s) => s.puntos.filter((p) => p.v != null));
+  if (!todos.length) { contenedor.innerHTML = '<p style="color:var(--texto-3);font-size:14px">Sin datos para graficar.</p>'; return; }
+  const x0 = Math.min(...todos.map((p) => p.t)), x1 = Math.max(...todos.map((p) => p.t));
+  const umbrales = (opciones.umbrales || []);
+  let ymax = Math.max(...todos.map((p) => p.v)) * 1.12;
+  const umbralesVisibles = umbrales.filter((u) => u.v < ymax * 1.25);
+  ymax = Math.max(ymax, ...umbralesVisibles.map((u) => u.v * 1.08));
+  const paso = [1, 2, 5, 10, 20, 25, 50, 100].find((p) => ymax / p <= 5) || 200;
+  ymax = Math.ceil(ymax / paso) * paso;
+  const X = (t) => M.l + (t - x0) / Math.max(1, x1 - x0) * (W - M.l - M.r);
+  const Y = (v) => H - M.b - v / ymax * (H - M.t - M.b);
+  const rejilla = [];
+  for (let v = 0; v <= ymax; v += paso) rejilla.push(`<line x1="${M.l}" x2="${W - M.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${M.l - 8}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`);
+  const dias = [];
+  const unDia = 864e5; const nd = Math.max(1, Math.ceil((x1 - x0) / unDia / 6));
+  const d0 = new Date(x0); d0.setHours(0, 0, 0, 0);
+  for (let t = d0.getTime() + unDia; t <= x1; t += unDia * nd) dias.push(`<text x="${X(t)}" y="${H - 8}" text-anchor="middle">${fechaCorta(new Date(t))}</text>`);
+  const lineas = series.map((s) => {
+    const segs = []; let actual = [];
+    s.puntos.forEach((p, k) => {
+      if (p.v == null) return;
+      const prev = actual[actual.length - 1];
+      if (prev && p.t - prev.t > 14 * 36e5) { segs.push(actual); actual = []; }
+      actual.push(p);
+    });
+    segs.push(actual);
+    const d = segs.filter((g) => g.length).map((g) => "M" + g.map((p) => `${X(p.t).toFixed(1)},${Y(p.v).toFixed(1)}`).join("L")).join("");
+    const puntos = s.puntos.filter((p) => p.v != null).map((p) => `<circle cx="${X(p.t).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="2.2" fill="${s.color}"/>`).join("");
+    return `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${puntos}`;
+  }).join("");
+  const umb = umbralesVisibles.map((u) => `<line class="umbral" x1="${M.l}" x2="${W - M.r}" y1="${Y(u.v)}" y2="${Y(u.v)}"/><text class="umbral-txt" x="${M.l + 6}" y="${Y(u.v) - 4}">${u.texto}</text>`).join("");
+  const marca = opciones.marca != null && opciones.marca >= x0 && opciones.marca <= x1 ? `<line class="marca-hora" x1="${X(opciones.marca)}" x2="${X(opciones.marca)}" y1="${M.t}" y2="${H - M.b}"/>` : "";
+  const leyendaHtml = `<div class="grafica__leyenda">${series.map((s) => `<span><i style="background:${s.color}"></i>${s.nombre}</span>`).join("")}<span style="margin-left:auto">µg/m³</span></div>`;
+  contenedor.innerHTML = `${leyendaHtml}<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opciones.etiqueta || "Serie de tiempo"}">
+    <g class="rejilla eje">${rejilla.join("")}</g>
+    <line class="linea-base" x1="${M.l}" x2="${W - M.r}" y1="${Y(0)}" y2="${Y(0)}"/>
+    <g class="eje">${dias.join("")}</g>${umb}${marca}${lineas}
+    <line class="cruz" x1="0" x2="0" y1="${M.t}" y2="${H - M.b}" style="display:none"/>
+    <rect x="${M.l}" y="${M.t}" width="${W - M.l - M.r}" height="${H - M.t - M.b}" fill="transparent"/></svg><div class="tip"></div>`;
+  const svg = contenedor.querySelector("svg"), cruz = svg.querySelector(".cruz"), tip = contenedor.querySelector(".tip");
+  const area = svg.querySelector("rect");
+  const mover = (ev) => {
+    const r = svg.getBoundingClientRect();
+    const x = (ev.clientX - r.left) / r.width * W;
+    const t = x0 + (x - M.l) / (W - M.l - M.r) * (x1 - x0);
+    const filas = series.map((s) => {
+      let mejor = null, dm = Infinity;
+      s.puntos.forEach((p) => { if (p.v == null) return; const d = Math.abs(p.t - t); if (d < dm) { dm = d; mejor = p; } });
+      return mejor && dm < 6 * 36e5 ? { s, p: mejor } : null;
+    }).filter(Boolean);
+    if (!filas.length) { tip.style.display = "none"; cruz.style.display = "none"; return; }
+    const tRef = filas[0].p.t;
+    cruz.setAttribute("x1", X(tRef)); cruz.setAttribute("x2", X(tRef)); cruz.style.display = "";
+    tip.innerHTML = `<b>${fechaLarga(new Date(tRef))}</b>` + filas.map(({ s, p }) => `<div><i style="background:${s.color}"></i>${s.nombre}: ${fmt1.format(p.v)} µg/m³</div>`).join("");
+    tip.style.display = "block";
+    const px = X(tRef) / W * r.width;
+    tip.style.left = Math.min(px + 12, r.width - tip.offsetWidth - 4) + "px";
+    tip.style.top = "28px";
+  };
+  area.addEventListener("pointermove", mover);
+  area.addEventListener("pointerleave", () => { tip.style.display = "none"; cruz.style.display = "none"; });
+}
+const umbralesDe = (cont) => CATEGORIAS.slice(0, 4).map((c) => ({ v: c[cont], texto: `${c.nombre} hasta ${c[cont]}` }));
+
+// ------------------------------------------------------------------ panel de AGEB
+const panel = $("#panel");
+function panelVacio() {
+  panel.innerHTML = `<div class="panel__vacio">
+    <svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9.5" r="2.5" fill="currentColor"/></svg>
+    <b style="font-size:18px;color:var(--tinta)">Selecciona un AGEB en el mapa</b>
+    <p>Verás su calidad del aire según ambas redes, su historial y su población.</p>
+    <button type="button" class="boton boton--secundario boton--chico" id="panel-ubicar">Ubicarme</button></div>`;
+  $("#panel-ubicar").onclick = ubicarme;
+}
+function panelAgeb() {
+  const i = estado.sel; if (i == null) return panelVacio();
+  const a = AG[i], fecha = HORAS[estado.red][estado.t];
+  const lect = ["pa", "sima"].map((red) => {
+    const { indice, diferenciaH } = horaMasCercana(red, fecha);
+    const v = diferenciaH <= 3 ? valor(red, estado.cont, i, indice) : null;
+    return `<div class="lectura"><span class="lectura__red"><span class="punto" style="width:9px;height:9px;border-radius:50%;background:${COLOR[red]}"></span>${NOMBRE_RED[red]}</span>
+      <span class="lectura__num">${v == null ? "–" : fmt1.format(v)} <small>µg/m³</small></span>${chip(v, estado.cont)}</div>`;
+  }).join("");
+  const [pob, ninos, mayores, disc] = a.c;
+  const series = ["pa", "sima"].map((red) => ({
+    nombre: NOMBRE_RED[red], color: COLOR[red],
+    puntos: HORAS[red].map((h, k) => ({ t: h.getTime(), v: valor(red, estado.cont, i, k) })),
+  }));
+  panel.innerHTML = `<div class="panel__cabeza"><div><div class="panel__clave">AGEB ${a.id}</div><div class="panel__mun">${nombreMun(a.m)}</div></div>
+      <button type="button" class="cerrar" id="cerrar-panel" aria-label="Cerrar detalle"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+    <div><h4>${HTML_CONT[estado.cont]} el ${fechaLarga(fecha)}</h4><div class="lecturas">${lect}</div></div>
+    <div><h4>Quién vive aquí (Censo 2020)</h4><div class="poblacion">
+      <div><b>${fmt.format(pob)}</b><span>habitantes</span></div>
+      <div><b>${fmt.format(ninos)}</b><span>niñas y niños de 0 a 5 años</span></div>
+      <div><b>${fmt.format(mayores)}</b><span>personas de 60 años o más</span></div>
+      <div><b>${fmt.format(disc)}</b><span>personas con discapacidad</span></div></div></div>
+    <div><h4>Historial de ${HTML_CONT[estado.cont]}</h4><div class="grafica" id="graf-ageb"></div></div>`;
+  $("#cerrar-panel").onclick = () => { estado.sel = null; panelVacio(); dibujar(); };
+  graficaLineas($("#graf-ageb"), series, { alto: 230, marca: fecha.getTime(), umbrales: umbralesDe(estado.cont), etiqueta: `Historial del AGEB ${a.id}` });
+}
+function seleccionar(i, centrar = false) {
+  estado.sel = i;
+  if (centrar) {
+    const c = rutas[i].caja; const cx = (c[0] + c[2]) / 2, cy = (c[1] + c[3]) / 2;
+    vista.s = Math.max(vista.s, 9000); vista.tx = ancho / 2 - vista.s * cx; vista.ty = alto / 2 - vista.s * cy;
+  }
+  panelAgeb(); dibujar();
+}
+
+// ------------------------------------------------------------------ hero
+function hero() {
+  const ultima = { pa: HORAS.pa.length - 1, sima: HORAS.sima.length - 1 };
+  const f = HORAS.pa[ultima.pa] > HORAS.sima[ultima.sima] ? HORAS.pa[ultima.pa] : HORAS.sima[ultima.sima];
+  $("#ahora-hora").textContent = fechaLarga(f);
+  $("#ahora-filas").innerHTML = ["pa", "sima"].map((red) => {
+    const t = ultima[red];
+    const m = mediana(AG.map((_, i) => valor(red, "pm25", i, t)));
+    const base = red === "pa" ? "Sensores comunitarios" : "Red oficial de Nuevo León";
+    const nota = HORAS[red][t].getTime() === f.getTime() ? base : `${base}, ${fechaLarga(HORAS[red][t])}`;
+    return `<div class="ahora__fila"><span class="ahora__punto" style="background:${COLOR[red]}"></span>
+      <div><div class="ahora__red">${NOMBRE_RED[red]}</div><div class="ahora__nota">${nota}</div></div>
+      <div class="ahora__valor"><div class="ahora__numero">${m == null ? "–" : fmt1.format(m)}</div><div class="ahora__unidad">µg/m³ ${chip(m, "pm25")}</div></div></div>`;
+  }).join("");
+  const conDato = AG.filter((_, i) => D.pa.pm25[i].some((v) => v != null) || D.sima.pm25[i].some((v) => v != null));
+  $("#ahora-agebs").textContent = fmt.format(conDato.length);
+  $("#ahora-hab").textContent = fmt.format(conDato.reduce((s, a) => s + a.c[0], 0));
+}
+
+// ------------------------------------------------------------------ exposición
+const ETIQ_GRUPO = ["personas", "niñas y niños de 0 a 5 años", "personas de 60 años o más", "personas con discapacidad"];
+function exposicion() {
+  const g = estado.grupo, red = estado.red, cont = estado.cont, t = estado.t;
+  const sumas = new Array(CATEGORIAS.length).fill(0); let sinDato = 0;
+  const filas = [];
+  AG.forEach((a, i) => {
+    if (estado.mun && a.m !== estado.mun) return;
+    const v = valor(red, cont, i, t); const k = categoria(v, cont); const n = a.c[g];
+    if (k == null || k < 0) { sinDato += n; return; }
+    sumas[k] += n;
+    if (k >= 2) filas.push({ i, v, n });
+  });
+  const total = sumas.reduce((s, x) => s + x, 0) + sinDato;
+  const maximo = Math.max(1, ...sumas, sinDato);
+  const barra = (nombre, color, n) => `<div class="barra"><span>${nombre}</span><div class="barra__pista" role="presentation"><div class="barra__relleno" style="width:${(n / maximo * 100).toFixed(1)}%;background:${color}"></div></div>
+    <span class="barra__valor">${fmt.format(n)}<small>${total ? fmt1.format(n / total * 100) : 0} %</small></span></div>`;
+  $("#barras").innerHTML = CATEGORIAS.map((c, k) => barra(c.nombre, c.color, sumas[k])).join("") + barra("Sin dato", "var(--sin-dato)", sinDato);
+  $("#expo-contexto").innerHTML = `${HTML_CONT[cont]} según ${NOMBRE_RED[red]}, ${fechaLarga(HORAS[red][t])}${estado.mun ? ", " + nombreMun(estado.mun) : ""}.`;
+  $("#th-grupo").textContent = g === 0 ? "Personas" : ETIQ_GRUPO[g].charAt(0).toUpperCase() + ETIQ_GRUPO[g].slice(1);
+  filas.sort((x, y) => y.n - x.n);
+  $("#tabla-top").innerHTML = filas.slice(0, 8).map(({ i, v, n }) => `<tr data-i="${i}" tabindex="0"><td>${AG[i].id}</td><td>${nombreMun(AG[i].m)}</td><td class="num">${fmt1.format(v)} ${chip(v, cont)}</td><td class="num">${fmt.format(n)}</td></tr>`).join("")
+    || `<tr><td colspan="4" style="color:var(--texto-3);cursor:default">Ningún AGEB con calidad mala o peor a esta hora.</td></tr>`;
+  document.querySelectorAll("#tabla-top tr[data-i]").forEach((tr) => {
+    const ir = () => { seleccionar(+tr.dataset.i, true); $("#mapa").scrollIntoView(); };
+    tr.onclick = ir; tr.onkeydown = (e) => { if (e.key === "Enter") ir(); };
+  });
+}
+function tendencia() {
+  const cont = estado.cont;
+  const filtro = (i) => !estado.mun || AG[i].m === estado.mun;
+  const series = ["pa", "sima"].map((red) => ({
+    nombre: NOMBRE_RED[red], color: COLOR[red],
+    puntos: HORAS[red].map((h, k) => ({ t: h.getTime(), v: mediana(AG.map((_, i) => filtro(i) ? valor(red, cont, i, k) : null)) })),
+  }));
+  $("#tendencia-titulo").innerHTML = `Tendencia de ${HTML_CONT[cont]} ${estado.mun ? "en " + nombreMun(estado.mun) : "en la zona metropolitana"}`;
+  graficaLineas($("#graf-ciudad"), series, { alto: 300, marca: HORAS[estado.red][estado.t].getTime(), umbrales: umbralesDe(cont), etiqueta: "Mediana por hora de la zona" });
+}
+
+// ------------------------------------------------------------------ red y descargas
+function cifras() {
+  const horasTotales = new Set([...D.pa.horas, ...D.sima.horas]).size;
+  const dias = Math.round((Math.max(HORAS.pa.at(-1), HORAS.sima.at(-1)) - Math.min(HORAS.pa[0], HORAS.sima[0])) / 864e5);
+  $("#cifras").innerHTML = [
+    [fmt.format(D.sensores.length), "sensores comunitarios PurpleAir"],
+    [fmt.format(D.estaciones.length), "estaciones oficiales SIMA"],
+    [fmt.format(N), "AGEBs en el mapa"],
+    [`${dias} días`, `de historial (${fmt.format(horasTotales)} horas registradas)`],
+  ].map(([b, s]) => `<div class="cifra"><b>${b}</b><span>${s}</span></div>`).join("");
+  $("#descargas").innerHTML = Object.entries(D.descargas).map(([nombre, url]) => {
+    const [titulo, formato] = nombre.split(" (");
+    return `<a class="descarga" href="${url}" target="_blank" rel="noopener" download><span>${titulo}<small>${formato ? formato.replace(")", "") : ""}</small></span>
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>`;
+  }).join("");
+  $("#enlace-repo").href = D.repositorio;
+  $("#pie-final").textContent += ` Datos actualizados: ${D.generado}.`;
+}
+
+// ------------------------------------------------------------------ controles
+const slider = $("#slider");
+function sincronizarTiempo() {
+  slider.max = HORAS[estado.red].length - 1; slider.value = estado.t;
+  $("#etiqueta-hora").textContent = fechaLarga(HORAS[estado.red][estado.t]);
+  slider.setAttribute("aria-valuetext", fechaLarga(HORAS[estado.red][estado.t]));
+}
+function actualizar({ panel: p = true, expo = true, tend = false } = {}) {
+  sincronizarTiempo(); leyenda(); dibujar();
+  if (p) panelAgeb();
+  if (expo) exposicion();
+  if (tend) tendencia();
+}
+function segmentado(id, clave, alCambiar) {
+  document.querySelectorAll(`#${id} button`).forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll(`#${id} button`).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    alCambiar(b.dataset.valor);
+  }));
+}
+segmentado("sel-red", "red", (v) => {
+  const fecha = HORAS[estado.red][estado.t];
+  estado.red = v; estado.t = horaMasCercana(v, fecha).indice;
+  actualizar({ tend: true });
+});
+segmentado("sel-cont", "cont", (v) => { estado.cont = v; actualizar({ tend: true }); });
+slider.addEventListener("input", () => { estado.t = +slider.value; actualizar({ tend: false }); tendenciaMarca(); });
+let tTend; function tendenciaMarca() { clearTimeout(tTend); tTend = setTimeout(tendencia, 120); }
+const selMun = $("#sel-mun");
+Object.entries(D.municipios).sort((a, b) => a[1].localeCompare(b[1], "es")).forEach(([k, v]) => selMun.insertAdjacentHTML("beforeend", `<option value="${k}">${v}</option>`));
+selMun.addEventListener("change", () => { estado.mun = selMun.value; encuadreMunicipio(); actualizar({ panel: false, tend: true }); });
+$("#sel-grupo").addEventListener("change", (e) => { estado.grupo = +e.target.value; exposicion(); });
+$("#ver-sensores").addEventListener("change", (e) => { estado.sensores = e.target.checked; dibujar(); });
+$("#ver-estaciones").addEventListener("change", (e) => { estado.estaciones = e.target.checked; dibujar(); });
+$("#buscar").addEventListener("change", (e) => {
+  const q = e.target.value.trim().toUpperCase(); if (!q) return;
+  const i = indicePorId.get(q.padStart(13, "0")) ?? AG.findIndex((a) => a.id.includes(q));
+  if (i == null || i < 0) return avisar(`No encontramos el AGEB ${q}.`);
+  seleccionar(i, true);
+});
+let animacion = null;
+$("#btn-play").addEventListener("click", () => {
+  const icono = $("#icono-play"), boton = $("#btn-play");
+  if (animacion) { clearInterval(animacion); animacion = null; icono.setAttribute("d", "M3 1.5v11l9-5.5z"); boton.setAttribute("aria-label", "Reproducir la animación"); tendencia(); return; }
+  if (estado.t >= HORAS[estado.red].length - 1) estado.t = 0;
+  icono.setAttribute("d", "M3 2h3v10H3zM8 2h3v10H8z"); boton.setAttribute("aria-label", "Pausar la animación");
+  animacion = setInterval(() => {
+    estado.t = (estado.t + 1) % HORAS[estado.red].length;
+    actualizar({ expo: true, tend: false });
+    if (estado.t === HORAS[estado.red].length - 1) { $("#btn-play").click(); }
+  }, 700);
+});
+const menu = $(".menu-movil"), nav = $("#nav");
+menu.addEventListener("click", () => { const abierto = nav.classList.toggle("abierta"); menu.setAttribute("aria-expanded", String(abierto)); });
+nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => { nav.classList.remove("abierta"); menu.setAttribute("aria-expanded", "false"); }));
+
+// ------------------------------------------------------------------ inicio
+hero(); cifras(); panelVacio(); actualizar({ panel: false, tend: true });
+})();
+</script>
+</body>
+</html>
