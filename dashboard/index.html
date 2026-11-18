@@ -150,7 +150,10 @@ select, input[type="search"] { font: inherit; font-size: 14px; padding: 8px 12px
 .panel__mun { font-size: 22px; font-weight: 800; }
 .cerrar { border: 0; background: none; cursor: pointer; color: var(--texto-3); padding: 4px; }
 .lecturas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.lectura { border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 12px; display: grid; gap: 6px; }
+.lectura .chip { font-size: 12px; }
+.nota-panel { font-size: 12.5px; color: var(--texto-3); margin-top: 8px; }
+.lectura { border: 1px solid var(--linea); border-radius: var(--radio-s); padding: 10px; display: grid; gap: 6px; align-content: start; }
+.lectura--activa { border-color: var(--tinta); box-shadow: inset 0 0 0 1px var(--tinta); }
 .lectura__red { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--texto-2); }
 .lectura__num { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
 .lectura__num small { font-size: 13px; color: var(--texto-3); font-weight: 600; }
@@ -243,7 +246,7 @@ tbody tr:hover { background: var(--papel); }
   .menu-movil { display: block; }
   .cabecera .boton { display: none; }
   .seccion { padding: 64px 0; }
-  .pasos, .descargas, .cifras, .lecturas { grid-template-columns: 1fr; }
+  .pasos, .descargas, .cifras { grid-template-columns: 1fr; }
   .barra { grid-template-columns: 110px 1fr 80px; }
   .mapa { height: 440px; }
   .tiempo { min-width: 100%; }
@@ -453,7 +456,7 @@ tbody tr:hover { background: var(--papel); }
         <p>Un proceso automático que se ejecuta varias veces al día en GitHub Actions.</p>
       </div>
       <ol class="pasos" style="list-style:none;margin:0;padding:0">
-        <li class="paso"><div class="paso__num">1</div><h3>Adquisición y preprocesamiento</h3><p>Descargamos las lecturas de PM<sub>2.5</sub>, PM<sub>10</sub>, temperatura y humedad de los sensores PurpleAir y de las estaciones SIMA, y las estandarizamos.</p></li>
+        <li class="paso"><div class="paso__num">1</div><h3>Adquisición y preprocesamiento</h3><p>Descargamos las lecturas de PM<sub>2.5</sub>, PM<sub>10</sub>, temperatura y humedad de los sensores PurpleAir y de las estaciones SIMA, filtramos los sensores con fallas y ajustamos por humedad las lecturas de PurpleAir.</p></li>
         <li class="paso"><div class="paso__num">2</div><h3>Asociación al mapa de AGEB</h3><p>Ubicamos cada sensor en los polígonos AGEB del INEGI y unimos los datos del Censo 2020 con la clave CVEGEO.</p></li>
         <li class="paso"><div class="paso__num">3</div><h3>Interpolación espacial</h3><p>Estimamos un valor para cada AGEB a partir de los sensores cercanos: triangulación de Delaunay para PurpleAir y kriging para SIMA.</p></li>
         <li class="paso"><div class="paso__num">4</div><h3>Dashboard y análisis</h3><p>Publicamos el mapa, el historial por AGEB y los datos abiertos, listos para el gemelo digital MAITEC.</p></li>
@@ -484,7 +487,7 @@ tbody tr:hover { background: var(--papel); }
         <p>Todos los históricos están en el repositorio público del proyecto. Descárgalos directamente.</p>
       </div>
       <div class="descargas" id="descargas"></div>
-      <p class="datos-nota">Las estimaciones de PurpleAir provienen de sensores de bajo costo y todavía no incluyen la corrección por humedad de la EPA ni un control de calidad completo de los sensores; ambos están en desarrollo. No sustituyen al monitoreo oficial. Las horas se muestran en hora local de Monterrey.</p>
+      <p class="datos-nota">Las estimaciones de PurpleAir provienen de sensores comunitarios de bajo costo. Antes de calcular cada AGEB, filtramos los sensores con fallas y ajustamos las lecturas de PM<sub>2.5</sub> por humedad con la metodología de la EPA de Estados Unidos. Las estimaciones no sustituyen al monitoreo oficial. Las horas se muestran en hora local de Monterrey.</p>
     </div>
   </section>
 </main>
@@ -563,6 +566,7 @@ const mediana = (a) => { const v = a.filter((x) => x != null).sort((x, y) => x -
 const AG = D.agebs;
 const N = AG.length;
 const HORAS = { pa: D.pa.horas.map(aFecha), sima: D.sima.horas.map(aFecha) };
+const FUENTES = ["pa", "sima"];
 const valor = (red, cont, i, t) => { const v = D[red][cont][i][t]; return v == null ? null : v / 10; };
 const indicePorId = new Map(AG.map((a, i) => [a.id, i]));
 const nombreMun = (m) => D.municipios[m] || `Municipio ${m}`;
@@ -572,7 +576,9 @@ const horaMasCercana = (red, fecha) => {
   return { indice: mejor, diferenciaH: dm / 36e5 };
 };
 
-const estado = { red: "pa", cont: "pm25", t: HORAS.pa.length - 1, mun: "", sel: null, grupo: 0, sensores: true, estaciones: true };
+const estado = { red: "pa", cont: "pm25", t: 0, mun: "", sel: null, grupo: 0, sensores: true, estaciones: true };
+const fuente = () => estado.red;
+estado.t = HORAS[fuente()].length - 1;
 
 // ------------------------------------------------------------------ proyección
 let lat0 = 0, minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -605,7 +611,7 @@ function ajustarA(x0, y0, x1, y1, margen = 30) {
 }
 function encuadreMunicipio() {
   // Sin municipio: encuadra los AGEBs con dato en la red activa (la zona con cobertura)
-  const incluir = estado.mun ? (i) => AG[i].m === estado.mun : (i) => D[estado.red].pm25[i].some((v) => v != null);
+  const incluir = estado.mun ? (i) => AG[i].m === estado.mun : (i) => D[fuente()].pm25[i].some((v) => v != null);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   AG.forEach((a, i) => { if (incluir(i)) { const c = rutas[i].caja; x0 = Math.min(x0, c[0]); y0 = Math.min(y0, c[1]); x1 = Math.max(x1, c[2]); y1 = Math.max(y1, c[3]); } });
   ajustarA(x0, y0, x1, y1, 40);
@@ -618,7 +624,7 @@ function redimensionar() {
   dibujar();
 }
 function colorAgeb(i) {
-  const v = valor(estado.red, estado.cont, i, estado.t);
+  const v = valor(fuente(), estado.cont, i, estado.t);
   const k = categoria(v, estado.cont);
   return k == null || k < 0 ? COLOR.sinDato : CATEGORIAS[k].color;
 }
@@ -682,7 +688,7 @@ let hover = null, arrastre = null, punteros = new Map(), pinchInicial = null, ma
 const globo = $("#globo");
 function mostrarGlobo(i, px, py) {
   if (i == null) { globo.style.display = "none"; return; }
-  const v = valor(estado.red, estado.cont, i, estado.t);
+  const v = valor(fuente(), estado.cont, i, estado.t);
   const k = categoria(v, estado.cont);
   globo.innerHTML = `<b>${nombreMun(AG[i].m)}</b><br>AGEB ${AG[i].id}<br>${NOMBRE_CONT[estado.cont]}: ${v == null ? "sin dato" : fmt1.format(v) + " µg/m³ (" + CATEGORIAS[k].nombre.toLowerCase() + ")"}<br>${fmt.format(AG[i].c[0])} habitantes`;
   globo.style.display = "block";
@@ -762,7 +768,7 @@ function leyenda() {
     previo = lim;
     return `<li><i style="background:${c.color}"></i>${c.nombre} <span style="color:var(--texto-3)">(${rango})</span></li>`;
   }).join("");
-  $("#leyenda").innerHTML = `<b>${u} en µg/m³ · ${NOMBRE_RED[estado.red]}</b><ul>${filas}<li><i style="background:var(--sin-dato)"></i>Sin dato</li></ul>`;
+  $("#leyenda").innerHTML = `<b>${u} en µg/m³ · ${NOMBRE_RED[fuente()]}</b><ul>${filas}<li><i style="background:var(--sin-dato)"></i>Sin dato</li></ul>`;
 }
 
 // ------------------------------------------------------------------ gráfica de líneas (SVG)
@@ -844,15 +850,15 @@ function panelVacio() {
 }
 function panelAgeb() {
   const i = estado.sel; if (i == null) return panelVacio();
-  const a = AG[i], fecha = HORAS[estado.red][estado.t];
-  const lect = ["pa", "sima"].map((red) => {
+  const a = AG[i], fecha = HORAS[fuente()][estado.t];
+  const lect = FUENTES.map((red) => {
     const { indice, diferenciaH } = horaMasCercana(red, fecha);
     const v = diferenciaH <= 3 ? valor(red, estado.cont, i, indice) : null;
-    return `<div class="lectura"><span class="lectura__red"><span class="punto" style="width:9px;height:9px;border-radius:50%;background:${COLOR[red]}"></span>${NOMBRE_RED[red]}</span>
+    return `<div class="lectura${red === fuente() ? " lectura--activa" : ""}"><span class="lectura__red"><span class="punto" style="width:9px;height:9px;border-radius:50%;background:${COLOR[red]}"></span>${NOMBRE_RED[red]}</span>
       <span class="lectura__num">${v == null ? "–" : fmt1.format(v)} <small>µg/m³</small></span>${chip(v, estado.cont)}</div>`;
   }).join("");
   const [pob, ninos, mayores, disc] = a.c;
-  const series = ["pa", "sima"].map((red) => ({
+  const series = FUENTES.map((red) => ({
     nombre: NOMBRE_RED[red], color: COLOR[red],
     puntos: HORAS[red].map((h, k) => ({ t: h.getTime(), v: valor(red, estado.cont, i, k) })),
   }));
@@ -879,19 +885,19 @@ function seleccionar(i, centrar = false) {
 
 // ------------------------------------------------------------------ hero
 function hero() {
-  const ultima = { pa: HORAS.pa.length - 1, sima: HORAS.sima.length - 1 };
-  const f = HORAS.pa[ultima.pa] > HORAS.sima[ultima.sima] ? HORAS.pa[ultima.pa] : HORAS.sima[ultima.sima];
+  const ultima = Object.fromEntries(FUENTES.map((r) => [r, HORAS[r].length - 1]));
+  const f = new Date(Math.max(...FUENTES.map((r) => HORAS[r][ultima[r]].getTime())));
   $("#ahora-hora").textContent = fechaLarga(f);
-  $("#ahora-filas").innerHTML = ["pa", "sima"].map((red) => {
+  $("#ahora-filas").innerHTML = FUENTES.map((red) => {
     const t = ultima[red];
     const m = mediana(AG.map((_, i) => valor(red, "pm25", i, t)));
-    const base = red === "pa" ? "Sensores comunitarios" : "Red oficial de Nuevo León";
+    const base = { pa: "Red comunitaria de sensores", sima: "Red oficial de Nuevo León" }[red];
     const nota = HORAS[red][t].getTime() === f.getTime() ? base : `${base}, ${fechaLarga(HORAS[red][t])}`;
     return `<div class="ahora__fila"><span class="ahora__punto" style="background:${COLOR[red]}"></span>
       <div><div class="ahora__red">${NOMBRE_RED[red]}</div><div class="ahora__nota">${nota}</div></div>
       <div class="ahora__valor"><div class="ahora__numero">${m == null ? "–" : fmt1.format(m)}</div><div class="ahora__unidad">µg/m³ ${chip(m, "pm25")}</div></div></div>`;
   }).join("");
-  const conDato = AG.filter((_, i) => D.pa.pm25[i].some((v) => v != null) || D.sima.pm25[i].some((v) => v != null));
+  const conDato = AG.filter((_, i) => FUENTES.some((r) => D[r].pm25[i].some((v) => v != null)));
   $("#ahora-agebs").textContent = fmt.format(conDato.length);
   $("#ahora-hab").textContent = fmt.format(conDato.reduce((s, a) => s + a.c[0], 0));
 }
@@ -899,7 +905,7 @@ function hero() {
 // ------------------------------------------------------------------ exposición
 const ETIQ_GRUPO = ["personas", "niñas y niños de 0 a 5 años", "personas de 60 años o más", "personas con discapacidad"];
 function exposicion() {
-  const g = estado.grupo, red = estado.red, cont = estado.cont, t = estado.t;
+  const g = estado.grupo, red = fuente(), cont = estado.cont, t = estado.t;
   const sumas = new Array(CATEGORIAS.length).fill(0); let sinDato = 0;
   const filas = [];
   AG.forEach((a, i) => {
@@ -927,18 +933,18 @@ function exposicion() {
 function tendencia() {
   const cont = estado.cont;
   const filtro = (i) => !estado.mun || AG[i].m === estado.mun;
-  const series = ["pa", "sima"].map((red) => ({
+  const series = FUENTES.map((red) => ({
     nombre: NOMBRE_RED[red], color: COLOR[red],
     puntos: HORAS[red].map((h, k) => ({ t: h.getTime(), v: mediana(AG.map((_, i) => filtro(i) ? valor(red, cont, i, k) : null)) })),
   }));
   $("#tendencia-titulo").innerHTML = `Tendencia de ${HTML_CONT[cont]} ${estado.mun ? "en " + nombreMun(estado.mun) : "en la zona metropolitana"}`;
-  graficaLineas($("#graf-ciudad"), series, { alto: 300, marca: HORAS[estado.red][estado.t].getTime(), umbrales: umbralesDe(cont), etiqueta: "Mediana por hora de la zona" });
+  graficaLineas($("#graf-ciudad"), series, { alto: 300, marca: HORAS[fuente()][estado.t].getTime(), umbrales: umbralesDe(cont), etiqueta: "Mediana por hora de la zona" });
 }
 
 // ------------------------------------------------------------------ red y descargas
 function cifras() {
-  const horasTotales = new Set([...D.pa.horas, ...D.sima.horas]).size;
-  const dias = Math.round((Math.max(HORAS.pa.at(-1), HORAS.sima.at(-1)) - Math.min(HORAS.pa[0], HORAS.sima[0])) / 864e5);
+  const horasTotales = new Set(FUENTES.flatMap((r) => D[r].horas)).size;
+  const dias = Math.round((Math.max(...FUENTES.map((r) => HORAS[r].at(-1))) - Math.min(...FUENTES.map((r) => HORAS[r][0]))) / 864e5);
   $("#cifras").innerHTML = [
     [fmt.format(D.sensores.length), "sensores comunitarios PurpleAir"],
     [fmt.format(D.estaciones.length), "estaciones oficiales SIMA"],
@@ -957,9 +963,9 @@ function cifras() {
 // ------------------------------------------------------------------ controles
 const slider = $("#slider");
 function sincronizarTiempo() {
-  slider.max = HORAS[estado.red].length - 1; slider.value = estado.t;
-  $("#etiqueta-hora").textContent = fechaLarga(HORAS[estado.red][estado.t]);
-  slider.setAttribute("aria-valuetext", fechaLarga(HORAS[estado.red][estado.t]));
+  slider.max = HORAS[fuente()].length - 1; slider.value = estado.t;
+  $("#etiqueta-hora").textContent = fechaLarga(HORAS[fuente()][estado.t]);
+  slider.setAttribute("aria-valuetext", fechaLarga(HORAS[fuente()][estado.t]));
 }
 function actualizar({ panel: p = true, expo = true, tend = false } = {}) {
   sincronizarTiempo(); leyenda(); dibujar();
@@ -973,11 +979,14 @@ function segmentado(id, clave, alCambiar) {
     alCambiar(b.dataset.valor);
   }));
 }
-segmentado("sel-red", "red", (v) => {
-  const fecha = HORAS[estado.red][estado.t];
-  estado.red = v; estado.t = horaMasCercana(v, fecha).indice;
+function cambiarFuente(aplicar) {
+  const fecha = HORAS[fuente()][estado.t];
+  aplicar();
+  estado.t = horaMasCercana(fuente(), fecha).indice;
   actualizar({ tend: true });
-});
+}
+segmentado("sel-red", "red", (v) => cambiarFuente(() => { estado.red = v; }));
+
 segmentado("sel-cont", "cont", (v) => { estado.cont = v; actualizar({ tend: true }); });
 slider.addEventListener("input", () => { estado.t = +slider.value; actualizar({ tend: false }); tendenciaMarca(); });
 let tTend; function tendenciaMarca() { clearTimeout(tTend); tTend = setTimeout(tendencia, 120); }
@@ -997,12 +1006,12 @@ let animacion = null;
 $("#btn-play").addEventListener("click", () => {
   const icono = $("#icono-play"), boton = $("#btn-play");
   if (animacion) { clearInterval(animacion); animacion = null; icono.setAttribute("d", "M3 1.5v11l9-5.5z"); boton.setAttribute("aria-label", "Reproducir la animación"); tendencia(); return; }
-  if (estado.t >= HORAS[estado.red].length - 1) estado.t = 0;
+  if (estado.t >= HORAS[fuente()].length - 1) estado.t = 0;
   icono.setAttribute("d", "M3 2h3v10H3zM8 2h3v10H8z"); boton.setAttribute("aria-label", "Pausar la animación");
   animacion = setInterval(() => {
-    estado.t = (estado.t + 1) % HORAS[estado.red].length;
+    estado.t = (estado.t + 1) % HORAS[fuente()].length;
     actualizar({ expo: true, tend: false });
-    if (estado.t === HORAS[estado.red].length - 1) { $("#btn-play").click(); }
+    if (estado.t === HORAS[fuente()].length - 1) { $("#btn-play").click(); }
   }, 700);
 });
 const menu = $(".menu-movil"), nav = $("#nav");
