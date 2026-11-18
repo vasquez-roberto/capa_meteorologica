@@ -388,3 +388,8 @@
 2026-11-17 16:00:00,Temperatura,offset: sin offset | residuo: IDW p=2,1.254,-0.037,6
 2026-11-17 16:00:00,Humedad,offset: Kriging exponential | residuo: IDW p=2,2.648,0.027,5
 2026-11-17 16:00:00,Radiacion,offset: sin offset | residuo: Kriging exponential,46.413,0.109,5
+2026-11-17 22:00:00,PM10,offset: IDW p=2 | residuo: Kriging exponential,48.506,0.156,15
+2026-11-17 22:00:00,PM25,offset: IDW p=2 | residuo: sin residuo,12.515,-0.051,15
+2026-11-17 22:00:00,Temperatura,offset: Kriging exponential | residuo: IDW p=2,0.467,0.007,9
+2026-11-17 22:00:00,Humedad,offset: IDW p=2 | residuo: Kriging exponential,3.465,0.352,8
+2026-11-17 22:00:00,Radiacion,Noche (0 W/m2),0.0,,14
