@@ -462,3 +462,5 @@
 2026-11-22 09:00:00,PM25,offset: Kriging exponential | residuo: sin residuo,11.812,-0.029,9
 2026-11-22 15:00:00,PM10,offset: sin offset | residuo: IDW p=2,11.215,0.091,15
 2026-11-22 15:00:00,PM25,offset: IDW p=2 | residuo: sin residuo,3.981,-0.006,15
+2026-11-22 20:00:00,PM10,offset: TPS suav=5 | residuo: TPS suav=1,6.942,0.252,15
+2026-11-22 20:00:00,PM25,offset: Kriging spherical | residuo: Kriging exponential,3.504,0.282,15
